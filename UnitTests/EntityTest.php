@@ -54,7 +54,7 @@ class EntityTest extends Base
     /**
      * @test
      */
-    public function handleDATETIMEReturnsDateTimeObjectOnValidDateTimeString()
+    public function handleDATETIMEReturnsISO8601StringOnValidDateTimeString()
     {
         $entity = $this->getMockBuilder('\Yumilicious\Entity')
             ->disableOriginalConstructor()
@@ -81,7 +81,7 @@ class EntityTest extends Base
     /**
      * @test
      */
-    public function handleDATETIMEReturnsDateTimeObjectOnValidDateTimeObject()
+    public function handleDATETIMEReturnsISO8601OnValidDateTimeObject()
     {
         $entity = $this->getMockBuilder('\Yumilicious\Entity')
             ->disableOriginalConstructor()
