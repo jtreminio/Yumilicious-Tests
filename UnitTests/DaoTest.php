@@ -20,6 +20,8 @@ class DaoTest extends Base
             ->setMethods(array('__construct'))
             ->getMock();
 
+        $dao->setEntity($entityPersonAccount);
+
         $dbResults = array(
             'personId' => 1,
             'email'    => 'test@email.com',
