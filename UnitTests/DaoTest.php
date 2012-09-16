@@ -8,7 +8,7 @@ class DaoTest extends Base
     /**
      * @test
      */
-    public function hydrate()
+    public function hydrateReturnsExpectedValues()
     {
         /** @var $dao \Yumilicious\Dao */
         $dao = $this->getMockBuilder('\Yumilicious\Dao')
