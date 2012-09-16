@@ -13,16 +13,32 @@ class PersonAccountTest extends Base
      */
     public function setConstraintsPassesWithMinimumAttributes()
     {
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getCalledClass'))
+            ->getMock();
+
         /** @var $validatorPersonAccount \Yumilicious\Validator\PersonAccount */
         $validatorPersonAccount = $this->app['validatorPersonAccount'];
 
-        $entityPersonAccount = new \Yumilicious\Entity\PersonAccount();
-        $entityPersonAccount->setEmail('test@test.com')
-            ->setPassword('$2y$5ihgrGEjgwewg')
-            ->setDisplayName('Test Name')
-            ->setCreatedBy('123');
+        $calledClass = '\Yumilicious\Entity\PersonAccount';
 
-        $errors = $validatorPersonAccount->validate($entityPersonAccount);
+        $entityPersonAccount->expects($this->once())
+            ->method('getCalledClass')
+            ->will($this->returnValue($calledClass));
+
+        $entityPersonAccount->setValidator($validatorPersonAccount);
+
+        $dataSet = array(
+            'email'    => 'foo@foo.com',
+            'password' => '$2y$fiosifhiajff',
+            'displayName' => 'Foo Name',
+            'createdBy'   => '123'
+        );
+
+        $entityPersonAccount->hydrate($dataSet);
+
+        $errors = $entityPersonAccount->validate($entityPersonAccount);
         $expectedErrorCount = 0;
 
         $this->assertCount(
@@ -37,18 +53,33 @@ class PersonAccountTest extends Base
      */
     public function setConstraintsFailsWithBadMinimumAttributes()
     {
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getCalledClass'))
+            ->getMock();
+
         /** @var $validatorPersonAccount \Yumilicious\Validator\PersonAccount */
         $validatorPersonAccount = $this->app['validatorPersonAccount'];
 
-        $entityPersonAccount = new \Yumilicious\Entity\PersonAccount();
+        $calledClass = '\Yumilicious\Entity\PersonAccount';
 
-        $errors = $validatorPersonAccount->validate($entityPersonAccount);
+        $entityPersonAccount->expects($this->once())
+            ->method('getCalledClass')
+            ->will($this->returnValue($calledClass));
+
+        $entityPersonAccount->setValidator($validatorPersonAccount);
+
+        $dataSet = array();
+
+        $entityPersonAccount->hydrate($dataSet);
+
+        $errors = $entityPersonAccount->validate($entityPersonAccount);
         $expectedErrorCount = 4;
 
         $this->assertCount(
             $expectedErrorCount,
             $errors,
-            "Expected {$expectedErrorCount} errors returned"
+            'Expected no errors returned'
         );
     }
 

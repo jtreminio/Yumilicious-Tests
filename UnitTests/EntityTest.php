@@ -11,6 +11,54 @@ class EntityTest extends Base
     /**
      * @test
      */
+    public function hydrateReturnsExpectedValues()
+    {
+        /** @var $dao \Yumilicious\Dao */
+        $dao = $this->getMockBuilder('\Yumilicious\Dao')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $entityPersonAccount = new \Yumilicious\Entity\PersonAccount;
+
+        $dao->setEntity($entityPersonAccount);
+
+        $dbResults = array(
+            'personId' => 1,
+            'email'    => 'test@email.com',
+            'password' => 'test',
+            'displayName' => 'Barney Rubble',
+        );
+
+        $entityPersonAccount->hydrate($dbResults);
+
+        $this->assertEquals(
+            $dbResults['personId'],
+            $entityPersonAccount->getPersonId(),
+            'PersonId field does not match expected'
+        );
+
+        $this->assertEquals(
+            $dbResults['email'],
+            $entityPersonAccount->getEmail(),
+            'Email field does not match expected'
+        );
+
+        $this->assertEquals(
+            $dbResults['password'],
+            $entityPersonAccount->getPassword(),
+            'Password field does not match expected'
+        );
+
+        $this->assertEquals(
+            $dbResults['displayName'],
+            $entityPersonAccount->getDisplayName(),
+            'DisplayName field does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     */
     public function entityClassThrowsExceptionWhenCallingUndefinedMethod()
     {
         $entity = $this->getMockBuilder('\Yumilicious\Entity')
