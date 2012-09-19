@@ -30,10 +30,170 @@ class PersonAccountTest extends Base
 
         /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->app['domainPersonAccount'];
-        $domainPersonAccount->create(
-            $dataSet,
-            $this->app['entityPersonAccount']
+        $domainPersonAccount->create($dataSet);
+    }
+
+    /**
+     * @test
+     */
+    public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
+    {
+        $email = 'test@test.com';
+        $password = 'foobar';
+
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                     '__construct',
+                     'password_verify',
+                )
+            )
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getByEmail'))
+            ->getMock();
+
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrate'))
+            ->getMock();
+
+        $daoPersonAccount->expects($this->once())
+            ->method('getByEmail')
+            ->with($email)
+            ->will($this->returnValue(false));
+
+        $domainPersonAccount->expects($this->never())
+            ->method('password_verify');
+
+        $entityPersonAccount->expects($this->never())
+            ->method('hydrate');
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->app['domainPersonAccount'] = $domainPersonAccount;
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+        $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $this->assertFalse(
+            $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
+            'Expected Dao\PersonAccount::getByEmail to return false'
         );
+    }
+
+    /**
+     * @test
+     */
+    public function getPersonByEmailAndPasswordReturnsFalseOnMismatchedPasswords()
+    {
+        $email = 'test@test.com';
+        $password = 'foobar';
+
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                     '__construct',
+                     'password_verify',
+                )
+            )
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getByEmail'))
+            ->getMock();
+
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrate'))
+            ->getMock();
+
+        $expectedPersonAccount = array('password' => 'BADPASSWORD');
+
+        $daoPersonAccount->expects($this->once())
+            ->method('getByEmail')
+            ->with($email)
+            ->will($this->returnValue($expectedPersonAccount));
+
+        $domainPersonAccount->expects($this->once())
+            ->method('password_verify')
+            ->with($password, $expectedPersonAccount['password'])
+            ->will($this->returnValue(false));
+
+        $entityPersonAccount->expects($this->never())
+            ->method('hydrate');
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->app['domainPersonAccount'] = $domainPersonAccount;
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+        $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $this->assertFalse(
+            $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
+            'Expected Domain\PersonAccount::password_verify to return false'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getPersonByEmailAndPasswordReturnsEntityOnSuccess()
+    {
+        $email = 'test@test.com';
+        $password = 'foobar';
+
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                     '__construct',
+                     'password_verify',
+                )
+            )
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getByEmail'))
+            ->getMock();
+
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrate'))
+            ->getMock();
+
+        $expectedPersonAccount = array(
+            'email'    => $email,
+            'password' => $password,
+        );
+
+        $daoPersonAccount->expects($this->once())
+            ->method('getByEmail')
+            ->with($email)
+            ->will($this->returnValue($expectedPersonAccount));
+
+        $domainPersonAccount->expects($this->once())
+            ->method('password_verify')
+            ->with($password, $expectedPersonAccount['password'])
+            ->will($this->returnValue(true));
+
+        $entityPersonAccount->expects($this->once())
+            ->method('hydrate')
+            ->with($expectedPersonAccount)
+            ->will($this->returnValue(true));
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->app['domainPersonAccount'] = $domainPersonAccount;
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+        $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $this->assertTrue($domainPersonAccount->getPersonByEmailAndPassword($email, $password));
     }
 
 }
