@@ -12,6 +12,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::create
      */
     public function createThrowsExceptionOnValidationErrors()
     {
@@ -35,6 +36,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getPersonByEmailAndPassword
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
     {
@@ -80,12 +82,13 @@ class PersonAccountTest extends Base
 
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
-            'Expected Dao\PersonAccount::getByEmail to return false'
+            'Expecting return false '
         );
     }
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getPersonByEmailAndPassword
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnMismatchedPasswords()
     {
@@ -141,6 +144,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getPersonByEmailAndPassword
      */
     public function getPersonByEmailAndPasswordReturnsEntityOnSuccess()
     {
@@ -193,7 +197,10 @@ class PersonAccountTest extends Base
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
-        $this->assertTrue($domainPersonAccount->getPersonByEmailAndPassword($email, $password));
+        $this->assertTrue(
+            $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
+            'Expecting return true'
+        );
     }
 
 }

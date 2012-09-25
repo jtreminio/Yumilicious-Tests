@@ -102,7 +102,7 @@ class EntityTest extends Base
     /**
      * @test
      */
-    public function handleDATETIMEReturnsISO8601StringOnValidDateTimeString()
+    public function handleDATETIMEReturnsCorrectlyFormattedStringOnValidDateTimeString()
     {
         $entity = $this->getMockBuilder('\Yumilicious\Entity')
             ->disableOriginalConstructor()
@@ -111,7 +111,7 @@ class EntityTest extends Base
         $salmaHayekBirthday = '1966-09-02 00:00:00';
 
         $expectedResult = new DateTime($salmaHayekBirthday);
-        $expectedResult = $expectedResult->format(DateTime::ISO8601);
+        $expectedResult = $expectedResult->format('Y-m-d H:i:s');
 
         $result = $this->invokeMethod(
             $entity,
@@ -129,7 +129,7 @@ class EntityTest extends Base
     /**
      * @test
      */
-    public function handleDATETIMEReturnsISO8601OnValidDateTimeObject()
+    public function handleDATETIMEReturnsCorrectlyFormattedStringOnValidDateTimeObject()
     {
         $entity = $this->getMockBuilder('\Yumilicious\Entity')
             ->disableOriginalConstructor()
@@ -137,7 +137,7 @@ class EntityTest extends Base
 
         $salmaHayekBirthday = new DateTime('1966-09-02 00:00:00');
 
-        $expectedResult = $salmaHayekBirthday->format(DateTime::ISO8601);
+        $expectedResult = $salmaHayekBirthday->format('Y-m-d H:i:s');
 
         $result = $this->invokeMethod(
             $entity,

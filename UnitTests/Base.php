@@ -13,6 +13,7 @@ class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
         $this->app = require __DIR__ . '/../../../src/app.php';
 
         // Tests mode
+        $this->app['session.test'] = true;
         unset($this->app['exception_handler']);
 
         // Services
