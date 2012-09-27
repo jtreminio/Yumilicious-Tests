@@ -314,4 +314,131 @@ class LocationTest extends Base
             'Expected return of false'
         );
     }
+
+    /**
+     * @test
+     */
+    public function getAllReturnsResults()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrateMultiple'))
+            ->getMock();
+
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getAll'))
+            ->getMock();
+
+        $getAllResult = array(1, 2, 3);
+        $entityName = 'entityLocation';
+
+        $daoLocation->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllResult));
+
+        $domainLocation->expects($this->once())
+            ->method('hydrateMultiple')
+            ->with($entityName, $getAllResult)
+            ->will($this->returnValue($getAllResult));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $this->assertEquals(
+            $getAllResult,
+            $domainLocation->getAll(),
+            'Expected return of an array'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function separateIntoStatesReturnsCorrectlyShapedArray()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getStates'))
+            ->getMock();
+
+        $locationOne = $this->getMockBuilder('\stdClass')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getState'))
+            ->getMock();
+
+        $locationTwo = $this->getMockBuilder('\stdClass')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getState'))
+            ->getMock();
+
+        $locationThree = $this->getMockBuilder('\stdClass')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getState'))
+            ->getMock();
+
+        $states = array(
+            'AK' => 'Alaska',
+            'AL' => 'Alabama',
+            'AZ' => 'Arizona',
+            'AR' => 'Arkansas',
+            'CA' => 'California',
+            'CO' => 'Colorado',
+            'CT' => 'Connecticut',
+            'DE' => 'Delaware',
+        );
+
+        $daoState->expects($this->once())
+            ->method('getStates')
+            ->will($this->returnValue($states));
+
+        $locationOneState = 'AL';
+        $locationOne->expects($this->once())
+            ->method('getState')
+            ->will($this->returnValue($locationOneState));
+
+        $locationTwoState = 'CT';
+        $locationTwo->expects($this->once())
+            ->method('getState')
+            ->will($this->returnValue($locationTwoState));
+
+        $locationThreeState = 'AL';
+        $locationThree->expects($this->once())
+            ->method('getState')
+            ->will($this->returnValue($locationThreeState));
+
+        $this->app['daoState'] = $daoState;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $arrayOfLocations = array($locationOne, $locationTwo, $locationThree);
+
+        $results = $domainLocation->separateIntoStates($arrayOfLocations);
+
+        $expectedAlabamaCount = 2;
+        $this->assertCount(
+            $expectedAlabamaCount,
+            $results['Alabama']
+        );
+
+        $expectedConnecticutCount = 1;
+        $this->assertCount(
+            $expectedConnecticutCount,
+            $results['Connecticut']
+        );
+    }
 }
