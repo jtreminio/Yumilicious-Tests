@@ -7,7 +7,6 @@ use Yumilicious\Domain\Location;
 
 class LocationTest extends Base
 {
-
     /**
      * @test
      */
@@ -131,4 +130,49 @@ class LocationTest extends Base
         $domainLocation->addLocation($dataSet);
     }
 
+    /**
+     * @test
+     */
+    public function addLocationReturnsLastInsertIdOnSuccessfulCreation()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getDateTime'))
+            ->getMock();
+
+        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('create'))
+            ->getMock();
+
+        $lastInsertId = 123;
+
+        $daoLocation->expects($this->once())
+            ->method('create')
+            ->with($entityLocation)
+            ->will($this->returnValue($lastInsertId));
+
+        $this->app['entityLocation'] = $entityLocation;
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $dataSet = array();
+        $result = $domainLocation->addLocation($dataSet);
+
+        $this->assertEquals(
+            $lastInsertId,
+            $result,
+            'Returned value does not equal expected lastInsertId value'
+        );
+    }
 }
