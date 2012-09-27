@@ -175,4 +175,49 @@ class LocationTest extends Base
             'Returned value does not equal expected lastInsertId value'
         );
     }
+
+    /**
+     * @test
+     */
+    public function addLocationReturnsFalseOnFailedCreateCall()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getDateTime'))
+            ->getMock();
+
+        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('create'))
+            ->getMock();
+
+        $createValue = false;
+
+        $daoLocation->expects($this->once())
+            ->method('create')
+            ->with($entityLocation)
+            ->will($this->returnValue($createValue));
+
+        $this->app['entityLocation'] = $entityLocation;
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $dataSet = array();
+        $result = $domainLocation->addLocation($dataSet);
+
+        $this->assertFalse(
+            $result,
+            'Returned value should be false'
+        );
+    }
 }
