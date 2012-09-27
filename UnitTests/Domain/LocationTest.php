@@ -220,4 +220,98 @@ class LocationTest extends Base
             'Returned value should be false'
         );
     }
+
+    /**
+     * @test
+     */
+    public function getOneByIdReturnsResults()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getOneById'))
+            ->getMock();
+
+        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrate'))
+            ->getMock();
+
+        $id = 1;
+        $getOneByIdResult = array(1, 2, 3);
+
+        $daoLocation->expects($this->once())
+            ->method('getOneById')
+            ->with($id)
+            ->will($this->returnValue($getOneByIdResult));
+
+        $entityLocation->expects($this->once())
+            ->method('hydrate')
+            ->will($this->returnValue($getOneByIdResult));
+
+        $this->app['entityLocation'] = $entityLocation;
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $this->assertEquals(
+            $getOneByIdResult,
+            $domainLocation->getOneById($id),
+            'Expected an entity result'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getOneByIdReturnsFalseOnNoResult()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getOneById'))
+            ->getMock();
+
+        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('hydrate'))
+            ->getMock();
+
+        $id = 1;
+        $getOneByIdResult = false;
+
+        $daoLocation->expects($this->once())
+            ->method('getOneById')
+            ->with($id)
+            ->will($this->returnValue($getOneByIdResult));
+
+        $entityLocation->expects($this->never())
+            ->method('hydrate');
+
+        $this->app['entityLocation'] = $entityLocation;
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $this->assertFalse(
+            $domainLocation->getOneById($id),
+            'Expected return of false'
+        );
+    }
 }
