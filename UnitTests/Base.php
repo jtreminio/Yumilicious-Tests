@@ -13,8 +13,14 @@ class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
         $this->app = require __DIR__ . '/../../../src/app.php';
 
         // Tests mode
-        $this->app['session.test'] = true;
+        $this->app['debug'] = true;
         unset($this->app['exception_handler']);
+        $this->app['session.test'] = true;
+
+        // Use FilesystemSessionStorage to store session
+        $this->app['session.storage'] = $this->app->share(function() {
+            return new \Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage(sys_get_temp_dir());
+        });
 
         // Services
         require __DIR__ . '/../../../src/services.php';
