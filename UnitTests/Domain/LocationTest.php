@@ -170,7 +170,7 @@ class LocationTest extends Base
         $result = $domainLocation->addLocation($dataSet);
 
         $this->assertEquals(
-            $lastInsertId,
+            $entityLocation,
             $result,
             'Returned value does not equal expected lastInsertId value'
         );
