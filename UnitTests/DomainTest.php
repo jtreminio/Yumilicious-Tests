@@ -8,6 +8,33 @@ class DomainTest extends Base
 {
     /**
      * @test
+     * @covers \Yumilicious\Domain::validate
+     */
+    public function validateReturnsTrueOnPass()
+    {
+        $domain = $this->getMockBuilder('\Yumilicious\Domain')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $entity = $this->getMockBuilder('\Yumilicious\Entity')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $expectedErrors = array();
+
+        $entity->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($expectedErrors));
+
+        $this->assertTrue(
+            $domain->validate($entity),
+            'Method expected to return true on no error count'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain::hydrateMultiple
      */
     public function hydrateMultipleReturnsArrayOfEntities()
