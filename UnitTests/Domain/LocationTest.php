@@ -236,6 +236,11 @@ class LocationTest extends Base
             ->setMethods(null)
             ->getMock();
 
+        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->setMethods(array('getOneById'))
@@ -254,10 +259,16 @@ class LocationTest extends Base
             ->with($id)
             ->will($this->returnValue($getOneByIdResult));
 
+        $schedule = array();
+        $domainLocationSchedule->expects($this->once())
+            ->method('getSchedule')
+            ->will($this->returnValue($schedule));
+
         $entityLocation->expects($this->once())
             ->method('hydrate')
             ->will($this->returnValue($getOneByIdResult));
 
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
@@ -339,9 +350,14 @@ class LocationTest extends Base
             )
             ->getMock();
 
+        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getAll'))
+            ->setMethods(array())
             ->getMock();
 
         $getAllResult = array('non-empty array');
@@ -367,7 +383,7 @@ class LocationTest extends Base
             'schedule2',
             'schedule3',
         );
-        $domainLocation->expects($this->once())
+        $domainLocationSchedule->expects($this->once())
             ->method('getMultipleSchedules')
             ->with($locationIds)
             ->will($this->returnValue($schedules));
@@ -378,6 +394,7 @@ class LocationTest extends Base
             ->with($locations, $schedules)
             ->will($this->returnValue($expectedLocations));
 
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
