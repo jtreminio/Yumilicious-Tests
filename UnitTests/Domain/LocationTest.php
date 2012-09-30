@@ -329,7 +329,14 @@ class LocationTest extends Base
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrateMultiple'))
+            ->setMethods(
+                array(
+                    'hydrateMultiple',
+                    'getMultipleSchedules',
+                    'getLocationIdsFromEntities',
+                    'mapMultipleSchedulesToLocations',
+                )
+            )
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
@@ -337,17 +344,39 @@ class LocationTest extends Base
             ->setMethods(array('getAll'))
             ->getMock();
 
-        $getAllResult = array(1, 2, 3);
-        $entityName = 'entityLocation';
-
+        $getAllResult = array('non-empty array');
         $daoLocation->expects($this->once())
             ->method('getAll')
             ->will($this->returnValue($getAllResult));
 
+        $entityName = 'entityLocation';
+        $locations = array('non-empty array');
         $domainLocation->expects($this->once())
             ->method('hydrateMultiple')
             ->with($entityName, $getAllResult)
-            ->will($this->returnValue($getAllResult));
+            ->will($this->returnValue($locations));
+
+        $locationIds = array(1, 2, 3);
+        $domainLocation->expects($this->once())
+            ->method('getLocationIdsFromEntities')
+            ->with($locations)
+            ->will($this->returnValue($locationIds));
+
+        $schedules = array(
+            'schedule1',
+            'schedule2',
+            'schedule3',
+        );
+        $domainLocation->expects($this->once())
+            ->method('getMultipleSchedules')
+            ->with($locationIds)
+            ->will($this->returnValue($schedules));
+
+        $expectedLocations = array(100, 200, 300);
+        $domainLocation->expects($this->once())
+            ->method('mapMultipleSchedulesToLocations')
+            ->with($locations, $schedules)
+            ->will($this->returnValue($expectedLocations));
 
         $this->app['daoLocation'] = $daoLocation;
 
@@ -358,7 +387,7 @@ class LocationTest extends Base
         );
 
         $this->assertEquals(
-            $getAllResult,
+            $expectedLocations,
             $domainLocation->getAll(),
             'Expected return of an array'
         );
