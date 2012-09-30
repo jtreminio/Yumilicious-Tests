@@ -35,6 +35,84 @@ class DomainTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain::validate
+     */
+    public function validateReturnsExceptionOnFailure()
+    {
+        $errorOnePropertyPath = 'Property path 1';
+        $errorOneMessage = 'Message 1';
+
+        $errorTwoPropertyPath = 'Property path 2';
+        $errorTwoMessage = 'Message 2';
+
+        $expectedExceptionMessage =
+            "{$errorOnePropertyPath} - {$errorOneMessage}<br />" .
+            "{$errorTwoPropertyPath} - {$errorTwoMessage}<br />";
+
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            $expectedExceptionMessage
+        );
+
+        $domain = $this->getMockBuilder('\Yumilicious\Domain')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $entity = $this->getMockBuilder('\Yumilicious\Entity')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $errorOne = $this->getMockBuilder('\stdClass')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                    'getPropertyPath',
+                    'getMessage',
+                )
+            )
+            ->getMock();
+
+        $errorTwo = $this->getMockBuilder('\stdClass')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                    'getPropertyPath',
+                    'getMessage',
+                )
+            )
+            ->getMock();
+
+        $errorOne->expects($this->once())
+            ->method('getPropertyPath')
+            ->will($this->returnValue($errorOnePropertyPath));
+
+        $errorOne->expects($this->once())
+            ->method('getMessage')
+            ->will($this->returnValue($errorOneMessage));
+
+        $errorTwo->expects($this->once())
+            ->method('getPropertyPath')
+            ->will($this->returnValue($errorTwoPropertyPath));
+
+        $errorTwo->expects($this->once())
+            ->method('getMessage')
+            ->will($this->returnValue($errorTwoMessage));
+
+        $expectedErrors = array(
+            $errorOne,
+            $errorTwo
+        );
+
+        $entity->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($expectedErrors));
+
+        $domain->validate($entity);
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain::hydrateMultiple
      */
     public function hydrateMultipleReturnsArrayOfEntities()
