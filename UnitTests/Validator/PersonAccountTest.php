@@ -7,9 +7,9 @@ use Yumilicious\Validator\PersonAccount;
 
 class PersonAccountTest extends Base
 {
-
     /**
      * @test
+     * @covers \Yumilicious\Validator\PersonAccount
      */
     public function setConstraintsPassesWithMinimumAttributes()
     {
@@ -50,6 +50,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Validator\PersonAccount
      */
     public function setConstraintsFailsWithBadMinimumAttributes()
     {
@@ -82,5 +83,4 @@ class PersonAccountTest extends Base
             'Expected no errors returned'
         );
     }
-
 }

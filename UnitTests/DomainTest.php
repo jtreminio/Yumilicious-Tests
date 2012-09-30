@@ -8,6 +8,7 @@ class DomainTest extends Base
 {
     /**
      * @test
+     * @covers \Yumilicious\Domain::hydrateMultiple
      */
     public function hydrateMultipleReturnsArrayOfEntities()
     {

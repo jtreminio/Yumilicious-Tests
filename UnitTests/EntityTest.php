@@ -7,9 +7,9 @@ use \DateTime;
 
 class EntityTest extends Base
 {
-
     /**
      * @test
+     * @covers \Yumilicious\Entity::hydrate
      */
     public function hydrateReturnsExpectedValues()
     {
@@ -58,6 +58,7 @@ class EntityTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Entity::__call
      */
     public function entityClassThrowsExceptionWhenCallingUndefinedMethod()
     {
@@ -78,6 +79,7 @@ class EntityTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Entity::handleDATETIME
      */
     public function handleDATETIMEReturnsNullWhenDateStringAllZeros()
     {
@@ -101,6 +103,7 @@ class EntityTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Entity::handleDATETIME
      */
     public function handleDATETIMEReturnsCorrectlyFormattedStringOnValidDateTimeString()
     {
@@ -128,6 +131,7 @@ class EntityTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Entity::handleDATETIME
      */
     public function handleDATETIMEReturnsCorrectlyFormattedStringOnValidDateTimeObject()
     {
@@ -151,5 +155,4 @@ class EntityTest extends Base
             'Resulting DateTime string not matching expected'
         );
     }
-
 }
