@@ -124,30 +124,40 @@ class LocationTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Location::addLocation
+     * @group me
      */
-    public function addLocationReturnsLastInsertIdOnSuccessfulCreation()
+    public function addLocationReturnsEntityOnSuccessfulCreation()
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getDateTime'))
-            ->getMock();
-
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
+            ->setMethods(
+                array(
+                    'getDateTime',
+                    'validate',
+                )
+            )
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $lastInsertId = 123;
+        $dateTime = new \DateTime();
 
+        $domainLocation->expects($this->once())
+            ->method('getDateTime')
+            ->will($this->returnValue($dateTime));
+
+        $validatePasses = true;
+        $domainLocation->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validatePasses));
+
+        $lastInsertId = 15;
         $daoLocation->expects($this->once())
             ->method('create')
-            ->with($entityLocation)
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
@@ -156,13 +166,16 @@ class LocationTest extends Base
             $this->app
         );
 
-        $dataSet = array();
+        $dataSet = array(
+            'name' => 'test name',
+        );
+
         $result = $domainLocation->addLocation($dataSet);
 
         $this->assertEquals(
-            $entityLocation,
-            $result,
-            'Returned value does not equal expected lastInsertId value'
+            $dataSet['name'],
+            $result->getName(),
+            'Expecting result to be hydrated Entity\Location'
         );
     }
 
