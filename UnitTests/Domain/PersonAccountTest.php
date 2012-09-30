@@ -61,9 +61,9 @@ class PersonAccountTest extends Base
             ->with($personId)
             ->will($this->returnValue($account));
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $result = $domainPersonAccount->getByPersonId($personId);
 
@@ -112,10 +112,10 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $password = 'foobar';
 
@@ -163,10 +163,10 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
@@ -207,9 +207,9 @@ class PersonAccountTest extends Base
             ->with($password, $expectedPersonAccount['password'])
             ->will($this->returnValue(true));
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $result = $domainPersonAccount->getPersonByEmailAndPassword($email, $password);
 

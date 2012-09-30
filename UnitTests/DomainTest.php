@@ -153,11 +153,7 @@ class DomainTest extends Base
         $entityName = 'entityLocation';
         $this->app[$entityName] = $entity;
 
-        $this->setAttribute(
-            $domain,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domain, 'app', $this->app);
 
         $expectedEntityResults = array($entityOneHydrateResult, $entityTwoHydrateResult, $entityThreeHydrateResult);
 

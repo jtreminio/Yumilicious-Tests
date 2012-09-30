@@ -45,11 +45,7 @@ class LocationTest extends Base
 
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $dataSet = array(
             'name' => 'test name',
@@ -110,11 +106,7 @@ class LocationTest extends Base
 
         $this->app['entityLocation'] = $entityLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $dataSet = array();
 
@@ -159,11 +151,7 @@ class LocationTest extends Base
 
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $dataSet = array(
             'name' => 'test name',
@@ -205,11 +193,7 @@ class LocationTest extends Base
 
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $dataSet = array(
             'name' => 'test name',
@@ -264,11 +248,7 @@ class LocationTest extends Base
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $result = $domainLocation->getOneById($id);
 
@@ -317,11 +297,7 @@ class LocationTest extends Base
         $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $this->assertFalse(
             $domainLocation->getOneById($id),
@@ -408,11 +384,7 @@ class LocationTest extends Base
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['daoLocation'] = $daoLocation;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $expectedResult = $getAllResult;
         $expectedResult[0]['schedule']= $entityLocationScheduleOne;
@@ -520,11 +492,7 @@ class LocationTest extends Base
 
         $this->app['daoState'] = $daoState;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $arrayOfLocations = array($locationOne, $locationTwo, $locationThree);
 
@@ -617,11 +585,7 @@ class LocationTest extends Base
 
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $result = $this->invokeMethod(
             $domainLocation,
@@ -782,11 +746,7 @@ class LocationTest extends Base
 
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
 
-        $this->setAttribute(
-            $domainLocation,
-            'app',
-            $this->app
-        );
+        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $result = $this->invokeMethod(
             $domainLocation,
