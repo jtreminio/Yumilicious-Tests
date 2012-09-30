@@ -337,57 +337,73 @@ class LocationTest extends Base
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'hydrateMultiple',
-                    'getMultipleSchedules',
-                    'getLocationIdsFromEntities',
-                    'mapMultipleSchedulesToLocations',
-                )
-            )
-            ->getMock();
-
-        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
-            ->disableOriginalConstructor()
+            ->setMethods(null)
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $getAllResult = array('non-empty array');
+        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getMultipleSchedules',))
+            ->getMock();
+
+        $entityLocationScheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $entityLocationScheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $entityLocationScheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $getAllResult = array(
+            array(
+                'id'   => 123,
+                'name' => 'result 1',
+            ),
+            array(
+                'id'   => 456,
+                'name' => 'result 2',
+            ),
+            array(
+                'id'   => 789,
+                'name' => 'result 3',
+            ),
+        );
+
         $daoLocation->expects($this->once())
             ->method('getAllActive')
             ->will($this->returnValue($getAllResult));
 
-        $entityName = 'entityLocation';
-        $locations = array('non-empty array');
-        $domainLocation->expects($this->once())
-            ->method('hydrateMultiple')
-            ->with($entityName, $getAllResult)
-            ->will($this->returnValue($locations));
+        $entityLocationScheduleOne->setLocationId($getAllResult[0]['id']);
+        $entityLocationScheduleTwo->setLocationId($getAllResult[1]['id']);
+        $entityLocationScheduleThree->setLocationId($getAllResult[2]['id']);
 
-        $locationIds = array(1, 2, 3);
-        $domainLocation->expects($this->once())
-            ->method('getLocationIdsFromEntities')
-            ->with($locations)
-            ->will($this->returnValue($locationIds));
-
-        $schedules = array(
-            'schedule1',
-            'schedule2',
-            'schedule3',
+        $scheduleIds = array(
+            $getAllResult[0]['id'],
+            $getAllResult[1]['id'],
+            $getAllResult[2]['id'],
         );
+
+        $multipleScheduleEntityArray = array(
+            $entityLocationScheduleOne,
+            $entityLocationScheduleTwo,
+            $entityLocationScheduleThree,
+        );
+
         $domainLocationSchedule->expects($this->once())
             ->method('getMultipleSchedules')
-            ->with($locationIds)
-            ->will($this->returnValue($schedules));
+            ->with($scheduleIds)
+            ->will($this->returnValue($multipleScheduleEntityArray));
 
-        $expectedLocations = array(100, 200, 300);
-        $domainLocation->expects($this->once())
-            ->method('mapMultipleSchedulesToLocations')
-            ->with($locations, $schedules)
-            ->will($this->returnValue($expectedLocations));
 
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['daoLocation'] = $daoLocation;
@@ -398,10 +414,47 @@ class LocationTest extends Base
             $this->app
         );
 
+        $expectedResult = $getAllResult;
+        $expectedResult[0]['schedule']= $entityLocationScheduleOne;
+        $expectedResult[1]['schedule']= $entityLocationScheduleTwo;
+        $expectedResult[2]['schedule']= $entityLocationScheduleThree;
+
+        $result = $domainLocation->getAll('active');
+
         $this->assertEquals(
-            $expectedLocations,
-            $domainLocation->getAll(),
-            'Expected return of an array'
+            $expectedResult[0]['id'],
+            $result[0]->getId(),
+            'Expected first location ID not correct'
+        );
+
+        $this->assertEquals(
+            $expectedResult[1]['id'],
+            $result[1]->getId(),
+            'Expected second location ID not correct'
+        );
+
+        $this->assertEquals(
+            $expectedResult[2]['id'],
+            $result[2]->getId(),
+            'Expected third location ID not correct'
+        );
+
+        $this->assertEquals(
+            $expectedResult[0]['schedule']->getLocationId(),
+            $result[0]->getSchedule()->getLocationId(),
+            "Expected first location schedule's locationId not correct"
+        );
+
+        $this->assertEquals(
+            $expectedResult[1]['schedule']->getLocationId(),
+            $result[1]->getSchedule()->getLocationId(),
+            "Expected second location schedule's locationId not correct"
+        );
+
+        $this->assertEquals(
+            $expectedResult[2]['schedule']->getLocationId(),
+            $result[2]->getSchedule()->getLocationId(),
+            "Expected third location schedule's locationId not correct"
         );
     }
 
