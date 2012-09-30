@@ -236,33 +236,32 @@ class LocationTest extends Base
             ->disableOriginalConstructor()
             ->getMock();
 
+        $entityLocationSchedule = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $id = 1;
-        $getOneByIdResult = array(1, 2, 3);
+        $getOneByIdResult = array(
+            'id'       => 123,
+            'name'     => 'test name',
+            'subTitle' => 'test subtitle',
+        );
 
         $daoLocation->expects($this->once())
             ->method('getOneById')
             ->with($id)
             ->will($this->returnValue($getOneByIdResult));
 
-        $schedule = array();
         $domainLocationSchedule->expects($this->once())
             ->method('getSchedule')
-            ->will($this->returnValue($schedule));
-
-        $entityLocation->expects($this->once())
-            ->method('hydrate')
-            ->will($this->returnValue($getOneByIdResult));
+            ->with($id)
+            ->will($this->returnValue($entityLocationSchedule));
 
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-        $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
@@ -271,10 +270,17 @@ class LocationTest extends Base
             $this->app
         );
 
+        $result = $domainLocation->getOneById($id);
+
         $this->assertEquals(
-            $getOneByIdResult,
-            $domainLocation->getOneById($id),
+            $getOneByIdResult['id'],
+            $result->getId(),
             'Expected an entity result'
+        );
+
+        $this->assertTrue(
+            is_a($result->getSchedule(), '\Yumilicious\Entity\LocationSchedule'),
+            'Expecting location key to contain Entity\LocationSchedule'
         );
     }
 
