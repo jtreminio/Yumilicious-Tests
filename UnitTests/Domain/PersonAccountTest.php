@@ -35,9 +35,9 @@ class PersonAccountTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\PersonAccount::getByPersonId
+     * @covers \Yumilicious\Domain\PersonAccount::getById
      */
-    public function getByPersonIdReturnsEntityOnFound()
+    public function getByIdReturnsEntityOnFound()
     {
         $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
@@ -52,12 +52,12 @@ class PersonAccountTest extends Base
         $email = 'foo@bar.com';
 
         $account = array(
-            'personId' => $personId,
-            'email'    => $email,
+            'id'    => $personId,
+            'email' => $email,
         );
 
         $daoPersonAccount->expects($this->once())
-            ->method('getOneByPersonId')
+            ->method('getOneById')
             ->with($personId)
             ->will($this->returnValue($account));
 
@@ -65,12 +65,12 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        $result = $domainPersonAccount->getByPersonId($personId);
+        $result = $domainPersonAccount->getById($personId);
 
         $this->assertEquals(
-            $account['personId'],
-            $result->getPersonId(),
-            'personId value does not match expected'
+            $account['id'],
+            $result->getId(),
+            'person id value does not match expected'
         );
 
         $this->assertEquals(

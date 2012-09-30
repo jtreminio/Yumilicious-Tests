@@ -23,7 +23,7 @@ class EntityTest extends Base
         $dao->setEntity($entityPersonAccount);
 
         $dbResults = array(
-            'personId' => 1,
+            'id' => 1,
             'email'    => 'test@email.com',
             'password' => 'test',
             'displayName' => 'Barney Rubble',
@@ -32,9 +32,9 @@ class EntityTest extends Base
         $entityPersonAccount->hydrate($dbResults);
 
         $this->assertEquals(
-            $dbResults['personId'],
-            $entityPersonAccount->getPersonId(),
-            'PersonId field does not match expected'
+            $dbResults['id'],
+            $entityPersonAccount->getId(),
+            'Person id field does not match expected'
         );
 
         $this->assertEquals(
