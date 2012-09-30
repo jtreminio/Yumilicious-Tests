@@ -124,7 +124,6 @@ class LocationTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Location::addLocation
-     * @group me
      */
     public function addLocationReturnsEntityOnSuccessfulCreation()
     {
@@ -187,25 +186,23 @@ class LocationTest extends Base
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getDateTime'))
-            ->getMock();
-
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
+            ->setMethods(array('validate',))
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $createValue = false;
+        $validatePasses = true;
+        $domainLocation->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validatePasses));
 
+        $lastInsertId = false;
         $daoLocation->expects($this->once())
             ->method('create')
-            ->with($entityLocation)
-            ->will($this->returnValue($createValue));
+            ->will($this->returnValue($lastInsertId));
 
-        $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
@@ -214,12 +211,13 @@ class LocationTest extends Base
             $this->app
         );
 
-        $dataSet = array();
-        $result = $domainLocation->addLocation($dataSet);
+        $dataSet = array(
+            'name' => 'test name',
+        );
 
         $this->assertFalse(
-            $result,
-            'Returned value should be false'
+            $domainLocation->addLocation($dataSet),
+            'Expecting result to be false'
         );
     }
 
