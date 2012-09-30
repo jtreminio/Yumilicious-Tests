@@ -114,7 +114,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        $this->app['domainPersonAccount'] = $domainPersonAccount;
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
@@ -166,7 +165,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        $this->app['domainPersonAccount'] = $domainPersonAccount;
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
@@ -222,7 +220,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        $this->app['domainPersonAccount'] = $domainPersonAccount;
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
