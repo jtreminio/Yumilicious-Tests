@@ -16,10 +16,10 @@ class PersonAccountTest extends Base
     public function createThrowsExceptionOnValidationErrors()
     {
         $expectedException =
-            '"email" - This value should not be blank.'."\n" .
-            '"password" - This value should not be blank.'."\n" .
-            '"displayName" - This value should not be blank.'."\n" .
-            '"createdBy" - This value should not be blank.'."\n";
+            'email - This value should not be blank.<br />' .
+            'password - This value should not be blank.<br />' .
+            'displayName - This value should not be blank.<br />' .
+            'createdBy - This value should not be blank.<br />';
 
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
@@ -39,17 +39,9 @@ class PersonAccountTest extends Base
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
     {
-        $email = 'test@test.com';
-        $password = 'foobar';
-
         $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                     '__construct',
-                     'password_verify',
-                )
-            )
+            ->setMethods(array('password_verify',))
             ->getMock();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
@@ -60,10 +52,12 @@ class PersonAccountTest extends Base
             ->disableOriginalConstructor()
             ->getMock();
 
+        $email = 'test@test.com';
+        $accountFound = false;
         $daoPersonAccount->expects($this->once())
             ->method('getByEmail')
             ->with($email)
-            ->will($this->returnValue(false));
+            ->will($this->returnValue($accountFound));
 
         $domainPersonAccount->expects($this->never())
             ->method('password_verify');
@@ -76,6 +70,8 @@ class PersonAccountTest extends Base
         $this->app['domainPersonAccount'] = $domainPersonAccount;
         $this->app['daoPersonAccount'] = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
+
+        $password = 'foobar';
 
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
@@ -94,12 +90,7 @@ class PersonAccountTest extends Base
 
         $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                     '__construct',
-                     'password_verify',
-                )
-            )
+            ->setMethods(array('password_verify',))
             ->getMock();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
@@ -117,10 +108,11 @@ class PersonAccountTest extends Base
             ->with($email)
             ->will($this->returnValue($expectedPersonAccount));
 
+        $passwordMatches = false;
         $domainPersonAccount->expects($this->once())
             ->method('password_verify')
             ->with($password, $expectedPersonAccount['password'])
-            ->will($this->returnValue(false));
+            ->will($this->returnValue($passwordMatches));
 
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
@@ -148,12 +140,7 @@ class PersonAccountTest extends Base
 
         $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                     '__construct',
-                     'password_verify',
-                )
-            )
+            ->setMethods(array('password_verify',))
             ->getMock();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
