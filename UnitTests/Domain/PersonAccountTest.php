@@ -54,12 +54,10 @@ class PersonAccountTest extends Base
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('getByEmail'))
             ->getMock();
 
         $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
             ->getMock();
 
         $daoPersonAccount->expects($this->once())
@@ -106,12 +104,10 @@ class PersonAccountTest extends Base
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('getByEmail'))
             ->getMock();
 
         $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
             ->getMock();
 
         $expectedPersonAccount = array('password' => 'BADPASSWORD');
@@ -162,12 +158,10 @@ class PersonAccountTest extends Base
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('getByEmail'))
             ->getMock();
 
         $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
             ->getMock();
 
         $expectedPersonAccount = array(
