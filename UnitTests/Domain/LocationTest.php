@@ -9,6 +9,7 @@ class LocationTest extends Base
 {
     /**
      * @test
+     * @covers Yumilicious\Domain::Location
      */
     public function addLocationSetsCreatedAtIfEmpty()
     {
@@ -63,6 +64,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::Location
      */
     public function addLocationThrowsExceptionOnEntityValidationFailure()
     {
@@ -71,7 +73,7 @@ class LocationTest extends Base
 
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
-            '"'.$errorPropertyPath.'" - '.$errorMessage
+            "{$errorPropertyPath} - {$errorMessage}<br />"
         );
 
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
@@ -132,6 +134,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::Location
      */
     public function addLocationReturnsLastInsertIdOnSuccessfulCreation()
     {
@@ -178,6 +181,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::Location
      */
     public function addLocationReturnsFalseOnFailedCreateCall()
     {
@@ -223,6 +227,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::getOneById
      */
     public function getOneByIdReturnsResults()
     {
@@ -271,6 +276,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::getOneById
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
@@ -317,6 +323,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::getAll
      */
     public function getAllReturnsResults()
     {
@@ -359,6 +366,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers Yumilicious\Domain::separateIntoStates
      */
     public function separateIntoStatesReturnsCorrectlyShapedArray()
     {
