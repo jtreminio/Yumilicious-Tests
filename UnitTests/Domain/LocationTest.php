@@ -30,7 +30,6 @@ class LocationTest extends Base
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $dateTime = new \DateTime();
@@ -83,17 +82,10 @@ class LocationTest extends Base
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'hydrate',
-                    'validate',
-                )
-            )
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $errorClass = $this->getMockBuilder('\stdClass')
@@ -145,12 +137,10 @@ class LocationTest extends Base
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('create'))
             ->getMock();
 
         $lastInsertId = 123;
@@ -192,12 +182,10 @@ class LocationTest extends Base
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('create'))
             ->getMock();
 
         $createValue = false;
@@ -238,17 +226,14 @@ class LocationTest extends Base
 
         $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getOneById'))
             ->getMock();
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
             ->getMock();
 
         $id = 1;
@@ -298,12 +283,10 @@ class LocationTest extends Base
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getOneById'))
             ->getMock();
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
             ->getMock();
 
         $id = 1;
@@ -352,12 +335,10 @@ class LocationTest extends Base
 
         $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array())
             ->getMock();
 
         $getAllResult = array('non-empty array');
@@ -423,7 +404,6 @@ class LocationTest extends Base
 
         $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
             ->disableOriginalConstructor()
-            ->setMethods(array('getStates'))
             ->getMock();
 
         $locationOne = $this->getMockBuilder('\stdClass')
