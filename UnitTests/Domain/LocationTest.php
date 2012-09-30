@@ -23,19 +23,11 @@ class LocationTest extends Base
             )
             ->getMock();
 
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
         $dateTime = new \DateTime();
-        $dataSet = array(
-            'name' => 'test name',
-        );
 
         $domainLocation->expects($this->once())
             ->method('getDateTime')
@@ -51,13 +43,16 @@ class LocationTest extends Base
             ->method('create')
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
             $domainLocation,
             'app',
             $this->app
+        );
+
+        $dataSet = array(
+            'name' => 'test name',
         );
 
         $result = $domainLocation->addLocation($dataSet);
@@ -85,14 +80,10 @@ class LocationTest extends Base
 
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getDateTime'))
+            ->setMethods(null)
             ->getMock();
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -117,9 +108,7 @@ class LocationTest extends Base
             ->method('validate')
             ->will($this->returnValue(array($errorClass)));
 
-
         $this->app['entityLocation'] = $entityLocation;
-        $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute(
             $domainLocation,
