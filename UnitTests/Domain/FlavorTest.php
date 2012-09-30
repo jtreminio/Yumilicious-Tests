@@ -410,5 +410,4 @@ class FlavorTest extends Base
             'Flavor array was not properly alphabetized'
         );
     }
-
 }
