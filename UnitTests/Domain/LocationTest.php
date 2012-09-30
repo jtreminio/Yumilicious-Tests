@@ -15,17 +15,17 @@ class LocationTest extends Base
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
-            ->setMethods(array('getDateTime'))
+            ->setMethods(
+                array(
+                    'getDateTime',
+                    'validate',
+                )
+            )
             ->getMock();
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'hydrate',
-                    'validate',
-                )
-            )
+            ->setMethods(array('__construct'))
             ->getMock();
 
         $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
@@ -33,15 +33,23 @@ class LocationTest extends Base
             ->getMock();
 
         $dateTime = new \DateTime();
-        $dataSet = array();
+        $dataSet = array(
+            'name' => 'test name',
+        );
 
         $domainLocation->expects($this->once())
             ->method('getDateTime')
             ->will($this->returnValue($dateTime));
 
-        $entityLocation->expects($this->once())
-            ->method('hydrate')
-            ->with($dataSet);
+        $validatePasses = true;
+        $domainLocation->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validatePasses));
+
+        $lastInsertId = 15;
+        $daoLocation->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($lastInsertId));
 
         $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
@@ -52,11 +60,11 @@ class LocationTest extends Base
             $this->app
         );
 
-        $domainLocation->addLocation($dataSet);
+        $result = $domainLocation->addLocation($dataSet);
 
         $this->assertEquals(
             $dateTime->format('Y-m-d H:i:s'),
-            $entityLocation->getCreatedAt(),
+            $result->getCreatedAt(),
             'getCreatedAt() was not called correctly'
         );
     }
