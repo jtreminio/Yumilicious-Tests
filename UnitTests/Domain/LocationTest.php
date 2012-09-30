@@ -475,4 +475,314 @@ class LocationTest extends Base
             $results['Connecticut']
         );
     }
+
+    /**
+     * @test
+     */
+    public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $locationOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $locationIdOne = 123;
+        $locationOne->setId($locationIdOne);
+        $scheduleOne->setLocationId($locationIdOne);
+
+        $locationIdTwo = 456;
+        $locationTwo->setId(456);
+        $scheduleTwo->setLocationId($locationIdTwo);
+
+        $locationIdThree = 789;
+        $locationThree->setId(789);
+        $scheduleThree->setLocationId($locationIdThree);
+
+        $domainLocationSchedule->expects($this->never())
+            ->method('createEmptySchedules');
+
+        $locationsArray = array(
+            $locationOne,
+            $locationTwo,
+            $locationThree,
+        );
+
+        $schedulesArray = array(
+            $scheduleOne,
+            $scheduleTwo,
+            $scheduleThree,
+        );
+
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $result = $this->invokeMethod(
+            $domainLocation,
+            'mapMultipleSchedulesToLocations',
+            array($locationsArray, $schedulesArray)
+        );
+
+        $this->assertEquals(
+            $locationIdOne,
+            $result[0]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdOne,
+            $result[0]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdTwo,
+            $result[1]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdTwo,
+            $result[1]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdThree,
+            $result[2]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdThree,
+            $result[2]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedulesWhenSchedulesDoNotExist()
+    {
+        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $locationOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationFour = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $locationFive = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $scheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $missingScheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $missingScheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__construct'))
+            ->getMock();
+
+        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $locationIdOne = 123;
+        $locationOne->setId($locationIdOne);
+        $scheduleOne->setLocationId($locationIdOne);
+
+        $locationIdTwo = 456;
+        $locationTwo->setId($locationIdTwo);
+        $scheduleTwo->setLocationId($locationIdTwo);
+
+        $locationIdThree = 789;
+        $locationThree->setId($locationIdThree);
+        $scheduleThree->setLocationId($locationIdThree);
+
+        $locationIdFour = 987;
+        $locationFour->setId($locationIdFour);
+        $missingScheduleOne->setLocationId($locationIdFour);
+
+        $locationIdFive = 654;
+        $locationFive->setId($locationIdFive);
+        $missingScheduleTwo->setLocationId($locationIdFive);
+
+        $missingSchedules = array($locationIdFour, $locationIdFive);
+
+        $domainLocationSchedule->expects($this->once())
+            ->method('createEmptySchedules')
+            ->with($missingSchedules);
+
+        $getMultipleSchedulesResult = array(
+            $missingScheduleOne,
+            $missingScheduleTwo,
+        );
+        $domainLocationSchedule->expects($this->once())
+            ->method('getMultipleSchedules')
+            ->with($missingSchedules)
+            ->will($this->returnValue($getMultipleSchedulesResult));
+
+        $locationsArray = array(
+            $locationOne,
+            $locationTwo,
+            $locationThree,
+            $locationFour,
+            $locationFive,
+        );
+
+        $schedulesArray = array(
+            $scheduleOne,
+            $scheduleTwo,
+            $scheduleThree,
+        );
+
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
+
+        $this->setAttribute(
+            $domainLocation,
+            'app',
+            $this->app
+        );
+
+        $result = $this->invokeMethod(
+            $domainLocation,
+            'mapMultipleSchedulesToLocations',
+            array($locationsArray, $schedulesArray)
+        );
+
+        $this->assertEquals(
+            $locationIdOne,
+            $result[0]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdOne,
+            $result[0]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdTwo,
+            $result[1]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdTwo,
+            $result[1]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdThree,
+            $result[2]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdThree,
+            $result[2]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdFour,
+            $result[3]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdFour,
+            $result[3]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdFive,
+            $result[4]->getId(),
+            'Expecting getId() to equal location ID one'
+        );
+
+        $this->assertEquals(
+            $locationIdFive,
+            $result[4]->getSchedule()->getLocationId(),
+            'Expecting getLocationId() to equal location ID one'
+        );
+    }
 }
