@@ -178,13 +178,6 @@ class FlavorTest extends Base
 
         $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'getYogurtFlavors',
-                    'getExtraFlavorKeys',
-                    'getBeverages',
-                )
-            )
             ->getMock();
 
         $yogurtFlavors = array(
@@ -255,11 +248,6 @@ class FlavorTest extends Base
     {
         $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
             ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'getYogurtFlavors',
-                )
-            )
             ->getMock();
 
         $yogurtFlavors = array(
