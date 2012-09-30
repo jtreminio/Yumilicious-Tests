@@ -35,6 +35,53 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getByPersonId
+     */
+    public function getByPersonIdReturnsEntityOnFound()
+    {
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('password_verify',))
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $personId = 123;
+        $email = 'foo@bar.com';
+
+        $account = array(
+            'personId' => $personId,
+            'email'    => $email,
+        );
+
+        $daoPersonAccount->expects($this->once())
+            ->method('getOneByPersonId')
+            ->with($personId)
+            ->will($this->returnValue($account));
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $result = $domainPersonAccount->getByPersonId($personId);
+
+        $this->assertEquals(
+            $account['personId'],
+            $result->getPersonId(),
+            'personId value does not match expected'
+        );
+
+        $this->assertEquals(
+            $account['email'],
+            $result->getEmail(),
+            'email value does not match expected'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\PersonAccount::getPersonByEmailAndPassword
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
@@ -132,6 +179,8 @@ class PersonAccountTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::getPersonByEmailAndPassword
+     *
+     * @todo Rename this to returning entity and verify
      */
     public function getPersonByEmailAndPasswordReturnsEntityOnSuccess()
     {
