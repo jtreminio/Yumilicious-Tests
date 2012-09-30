@@ -9,7 +9,6 @@ use Yumilicious\Validator;
 
 class PersonAccountTest extends Base
 {
-
     /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::create
@@ -202,5 +201,4 @@ class PersonAccountTest extends Base
             'Expecting return true'
         );
     }
-
 }
