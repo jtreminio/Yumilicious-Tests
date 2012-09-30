@@ -9,7 +9,7 @@ class FlavorTest extends Base
 {
     /**
      * @test
-     * @covers \Yumilicious\Domain\getFlavorByName
+     * @covers \Yumilicious\Domain\Flavor::getFlavorByName
      * @dataProvider providerGetFlavorByNameReturnsExpectedValues
      */
     public function getFlavorByNameReturnsExpectedValues(
@@ -165,7 +165,7 @@ class FlavorTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\getFlavorByName
+     * @covers \Yumilicious\Domain\Flavor::getFlavorByName
      */
     public function getFlavorByNameThrowsExceptionWhenFlavorNotFound()
     {
@@ -242,7 +242,7 @@ class FlavorTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\getSortedYogurtFlavors
+     * @covers \Yumilicious\Domain\Flavor::getSortedYogurtFlavors
      */
     public function getSortedYogurtFlavorsReturnsAlphabetizedList()
     {

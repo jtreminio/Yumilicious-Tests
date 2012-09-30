@@ -9,7 +9,7 @@ class PersonAccountTest extends Base
 {
     /**
      * @test
-     * @covers \Yumilicious\Validator\PersonAccount
+     * @covers \Yumilicious\Validator\PersonAccount::validate
      */
     public function setConstraintsPassesWithMinimumAttributes()
     {
@@ -50,7 +50,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Validator\PersonAccount
+     * @covers \Yumilicious\Validator\PersonAccount::validate
      */
     public function setConstraintsFailsWithBadMinimumAttributes()
     {

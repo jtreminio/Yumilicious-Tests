@@ -9,7 +9,7 @@ class LocationTest extends Base
 {
     /**
      * @test
-     * @covers \Yumilicious\Domain::Location
+     * @covers \Yumilicious\Domain\Location::addLocation
      */
     public function addLocationSetsCreatedAtIfEmpty()
     {
@@ -63,7 +63,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::Location
+     * @covers \Yumilicious\Domain\Location::addLocation
      */
     public function addLocationThrowsExceptionOnEntityValidationFailure()
     {
@@ -126,7 +126,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::Location
+     * @covers \Yumilicious\Domain\Location::addLocation
      */
     public function addLocationReturnsLastInsertIdOnSuccessfulCreation()
     {
@@ -171,7 +171,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::Location
+     * @covers \Yumilicious\Domain\Location::addLocation
      */
     public function addLocationReturnsFalseOnFailedCreateCall()
     {
@@ -215,7 +215,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::getOneById
+     * @covers \Yumilicious\Domain\Location::getOneById
      */
     public function getOneByIdReturnsResults()
     {
@@ -272,7 +272,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::getOneById
+     * @covers \Yumilicious\Domain\Location::getOneById
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
@@ -317,7 +317,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::getAll
+     * @covers \Yumilicious\Domain\Location::getAll
      */
     public function getAllReturnsResults()
     {
@@ -343,7 +343,7 @@ class LocationTest extends Base
 
         $getAllResult = array('non-empty array');
         $daoLocation->expects($this->once())
-            ->method('getAll')
+            ->method('getAllActive')
             ->will($this->returnValue($getAllResult));
 
         $entityName = 'entityLocation';
@@ -393,7 +393,7 @@ class LocationTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain::separateIntoStates
+     * @covers \Yumilicious\Domain\Location::separateIntoStates
      */
     public function separateIntoStatesReturnsCorrectlyShapedArray()
     {
@@ -478,6 +478,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Location::mapMultipleSchedulesToLocations
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
     {
@@ -600,6 +601,7 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Location::mapMultipleSchedulesToLocations
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedulesWhenSchedulesDoNotExist()
     {
