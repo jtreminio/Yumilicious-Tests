@@ -150,6 +150,61 @@ class LocationTest extends Base
     }
 
     /**
+     * @test
+     * @covers \Yumilicious\Dao\Location::getByState
+     */
+    public function getByStateReturnsExpectedValus()
+    {
+        /** @var $daoLocation \Yumilicious\Dao\Location */
+        $daoLocation = $this->app['daoLocation'];
+
+        /** @var $entityOne \Yumilicious\Entity\Location */
+        $entityOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        /** @var $entityTwo \Yumilicious\Entity\Location */
+        $entityTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        /** @var $entityThree \Yumilicious\Entity\Location */
+        $entityThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        $sampleDataOne = $this->_createSampleData();
+        $sampleDataTwo = $this->_createSampleData();
+        $sampleDataThree = $this->_createSampleData();
+
+        $sampleDataTwo['state'] = $sampleDataOne['state'];
+        $sampleDataThree['state'] = $sampleDataOne['state'];
+
+        $entityOne->hydrate($sampleDataOne);
+        $entityTwo->hydrate($sampleDataTwo);
+        $entityThree->hydrate($sampleDataThree);
+
+        $entityOne->setId($daoLocation->create($entityOne));
+        $entityTwo->setId($daoLocation->create($entityTwo));
+        $entityThree->setId($daoLocation->create($entityThree));
+
+        $locationIds = array(
+            $entityOne->getId(),
+            $entityTwo->getId(),
+            $entityThree->getId(),
+        );
+
+        $results = $daoLocation->getByState($sampleDataOne['state']);
+
+        foreach ($results as $result) {
+            $this->assertTrue(
+                in_array($result['id'], $locationIds),
+                'Location id was not found in results'
+            );
+        }
+    }
+
+    /**
      * Create sample location data
      *
      * @return array
@@ -161,6 +216,8 @@ class LocationTest extends Base
         $createdAt = $date->format('Y-m-d H:i:s');
         $createdBy = mt_rand(1234567890, 9999999999);
 
+        $shuffled = str_shuffle('abcdefghijklmnopqrstuvwxyz');
+
         return array(
             'id'        => mt_rand(123, 999),
             'ordering'  => mt_rand(12345, 99999),
@@ -168,7 +225,7 @@ class LocationTest extends Base
             'subTitle'  => 'Test SubTitle'.uniqid('', true),
             'address'   => 'Test Address'.uniqid('', true),
             'city'      => 'Test City'.uniqid('', true),
-            'state'     => substr(uniqid('', true), 0, 2),
+            'state'     => $shuffled[0].$shuffled[1],
             'zipCode'   => mt_rand(12345, 99999),
             'extraInfo' => 'Extra Info'.uniqid('', true),
             'phone'     => mt_rand(12345, 99999),
