@@ -155,20 +155,20 @@ class PersonAccountTest extends Base
         $createdBy = mt_rand(1234567890, 9999999999);
 
         return array(
-            'id' => mt_rand(1234567890, 9999999999),
-            'email' => uniqid('', true).'@email.com',
-            'password' => uniqid('password', true),
-            'displayName' => 'Test User'.uniqid('', true),
-            'lastLoginAt' => '',
-            'passwordUpdatedAt' => '',
-            'failedLoginAttempts' => '',
-            'lockoutStartTime' => '',
+            'id'                      => mt_rand(1234567890, 9999999999),
+            'email'                   => uniqid('', true).'@email.com',
+            'password'                => uniqid('password', true),
+            'displayName'             => 'Test User'.uniqid('', true),
+            'lastLoginAt'             => '',
+            'passwordUpdatedAt'       => '',
+            'failedLoginAttempts'     => '',
+            'lockoutStartTime'        => '',
             'unreadNotificationCount' => 2,
-            'isActive' => 1,
-            'createdAt' => $createdAt,
-            'createdBy' => $createdBy,
-            'updatedAt' => $createdAt,
-            'updatedBy' => $createdBy,
+            'isActive'                => 1,
+            'createdAt'               => $createdAt,
+            'createdBy'               => $createdBy,
+            'updatedAt'               => $createdAt,
+            'updatedBy'               => $createdBy,
         );
     }
 }
