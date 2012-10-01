@@ -40,6 +40,7 @@ class LocationTest extends Base
             'Fetched email does not match expected'
         );
     }
+
     /**
      * @test
      * @covers \Yumilicious\Dao\Location::create
@@ -70,6 +71,81 @@ class LocationTest extends Base
             $entity->getName(),
             $fetchedRecord['name'],
             'Fetched name does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Dao\Location::reorder
+     */
+    public function reorderSetsCorrectOrderingNumbers()
+    {
+        /** @var $daoLocation \Yumilicious\Dao\Location */
+        $daoLocation = $this->app['daoLocation'];
+
+        /** @var $entityOne \Yumilicious\Entity\Location */
+        $entityOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        /** @var $entityTwo \Yumilicious\Entity\Location */
+        $entityTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        /** @var $entityThree \Yumilicious\Entity\Location */
+        $entityThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(null)
+            ->getMock();
+
+        $sampleDataOne = $this->_createSampleData();
+        $sampleDataTwo = $this->_createSampleData();
+        $sampleDataThree = $this->_createSampleData();
+
+        $sampleDataOne['state'] = 'ZA';
+        $sampleDataTwo['state'] = 'ZA';
+        $sampleDataThree['state'] = 'ZA';
+
+        $sampleDataOne['ordering'] = '10';
+        $sampleDataTwo['ordering'] = '20';
+        $sampleDataThree['ordering'] = '30';
+
+        $entityOne->hydrate($sampleDataOne);
+        $entityTwo->hydrate($sampleDataTwo);
+        $entityThree->hydrate($sampleDataThree);
+
+        $entityOne->setId($daoLocation->create($entityOne));
+        $entityTwo->setId($daoLocation->create($entityTwo));
+        $entityThree->setId($daoLocation->create($entityThree));
+
+        $entityThree->setOrdering(5);
+
+        $daoLocation->reorder($entityThree);
+
+        $resultOne = $daoLocation->getOneById($entityOne->getId());
+        $resultTwo = $daoLocation->getOneById($entityTwo->getId());
+        $resultThree = $daoLocation->getOneById($entityThree->getId());
+
+        $expectedResultOneOrdering = 20;
+        $expectedResultTwoOrdering = 30;
+        $expectedResultThreeOrdering = 10;
+
+        $this->assertEquals(
+            $expectedResultOneOrdering,
+            $resultOne['ordering'],
+            'Ordering value of result one not as expected'
+        );
+
+        $this->assertEquals(
+            $expectedResultTwoOrdering,
+            $resultTwo['ordering'],
+            'Ordering value of result two not as expected'
+        );
+
+        $this->assertEquals(
+            $expectedResultThreeOrdering,
+            $resultThree['ordering'],
+            'Ordering value of result three not as expected'
         );
     }
 
