@@ -7,6 +7,8 @@ class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
     /** @var \Silex\Application */
     protected $app;
 
+    static $runOncePerSuite = false;
+
     public function createApplication()
     {
         // Silex
@@ -43,15 +45,19 @@ class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
 
     public static function setUpBeforeClass()
     {
-        /**
-         * Requires table yumiliciousTests to exist. Drops all data from this table and clones yumilicious into it
-         */
-        exec(
-            'mysqldump -u root --no-data --add-drop-table yumiliciousTests | ' .
-            'grep ^DROP | ' .
-            'mysql -u root yumiliciousTests && ' .
-            'mysqldump -u root yumilicious | ' .
-            'mysql -u root yumiliciousTests'
-        );
+        if (!self::$runOncePerSuite) {
+            /**
+             * Requires table yumiliciousTests to exist. Drops all data from this table and clones yumilicious into it
+             */
+            exec(
+                'mysqldump -u root --no-data --add-drop-table yumiliciousTests | ' .
+                'grep ^DROP | ' .
+                'mysql -u root yumiliciousTests && ' .
+                'mysqldump -u root yumilicious | ' .
+                'mysql -u root yumiliciousTests'
+            );
+
+            self::$runOncePerSuite = true;
+        }
     }
 }
