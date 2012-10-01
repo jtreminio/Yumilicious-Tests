@@ -29,12 +29,14 @@ class PersonAccountTest extends Base
 
         $this->assertEquals(
             $entity->getEmail(),
-            $fetchedRecord['email']
+            $fetchedRecord['email'],
+            'Returned email does not match expected'
         );
 
         $this->assertEquals(
             $entity->getPassword(),
-            $fetchedRecord['password']
+            $fetchedRecord['password'],
+            'Returned password does not match expected'
         );
     }
 
@@ -122,19 +124,21 @@ class PersonAccountTest extends Base
         $sampleData = $this->_createSampleData();
 
         $entity->hydrate($sampleData);
-        
+
         $insertedId = $daoPersonAccount->create($entity);
 
         $fetchedRecord = $daoPersonAccount->getOneById($insertedId);
 
         $this->assertEquals(
             $entity->getEmail(),
-            $fetchedRecord['email']
+            $fetchedRecord['email'],
+            'Returned email does not match expected'
         );
 
         $this->assertEquals(
             $entity->getPassword(),
-            $fetchedRecord['password']
+            $fetchedRecord['password'],
+            'Returned password does not match expected'
         );
     }
 
