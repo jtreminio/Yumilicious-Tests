@@ -8,6 +8,7 @@ class PersonAccountTest extends Base
 {
     /**
      * @test
+     * @covers \Yumilicious\Dao\PersonAccount::create
      */
     public function createInsertsNewRecord()
     {
@@ -39,6 +40,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Dao\PersonAccount::create
      */
     public function createReturnsFalseOnFailure()
     {
@@ -72,6 +74,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Dao\PersonAccount::getByEmail
      */
     public function getByEmailReturnsExpected()
     {
@@ -100,6 +103,38 @@ class PersonAccountTest extends Base
             $entity->getDisplayName(),
             $result['displayName'],
             'Display names do not match'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Dao\PersonAccount::getById
+     */
+    public function getByIdReturnsExpected()
+    {
+        $daoPersonAccount = $this->app['daoPersonAccount'];
+
+        /** @var $entity \Yumilicious\Entity\PersonAccount */
+        $entity = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->setMethods(null)
+            ->getMock();
+
+        $sampleData = $this->_createSampleData();
+
+        $entity->hydrate($sampleData);
+        
+        $insertedId = $daoPersonAccount->create($entity);
+
+        $fetchedRecord = $daoPersonAccount->getOneById($insertedId);
+
+        $this->assertEquals(
+            $entity->getEmail(),
+            $fetchedRecord['email']
+        );
+
+        $this->assertEquals(
+            $entity->getPassword(),
+            $fetchedRecord['password']
         );
     }
 
