@@ -184,6 +184,36 @@ class LocationScheduleTest extends Base
     }
 
     /**
+     * @test
+     * @covers \Yumilicious\Dao\LocationSchedule::createMultipleEmptySchedules
+     */
+    public function createMultipleEmptySchedulesCreatesAll()
+    {
+        /** @var $daoLocationSchedule \Yumilicious\Dao\LocationSchedule */
+        $daoLocationSchedule = $this->app['daoLocationSchedule'];
+
+        $locationIds = array(
+            mt_rand(123, 999),
+            mt_rand(123, 999),
+            mt_rand(123, 999)
+        );
+
+        $this->assertTrue(
+            $daoLocationSchedule->createMultipleEmptySchedules($locationIds),
+            'Expecting true for success'
+        );
+
+        $expectedResultCount = count($locationIds);
+        $results = $daoLocationSchedule->getMultiple($locationIds);
+
+        $this->assertCount(
+            $expectedResultCount,
+            $results,
+            'Expected result count for multiple inserted schedules did not match result'
+        );
+    }
+
+    /**
      * Create sample schedule data
      *
      * @return array
