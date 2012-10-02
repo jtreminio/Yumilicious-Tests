@@ -73,6 +73,67 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::create
+     */
+    public function createReturnsEntityOnSuccess()
+    {
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('password_hash'))
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $createdId = 321;
+        $daoPersonAccount->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($createdId));
+
+        $createdBy = 123;
+        $dataSet = array(
+            'email'          => 'blah@blah.com',
+            'password'       => 'blah',
+            'passwordVerify' => 'blah',
+            'displayName'    => 'Test Name',
+            'isActive'       => 1,
+            'createdBy'      => $createdBy,
+        );
+
+        $hashedPassword = '$2y$'.$dataSet['password'];
+        $domainPersonAccount->expects($this->once())
+            ->method('password_hash')
+            ->will($this->returnValue($hashedPassword));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        /** @var $entity Entity\PersonAccount */
+        $entity = $domainPersonAccount->create($dataSet);
+
+        $this->assertEquals(
+            $createdId,
+            $entity->getId(),
+            'Created Id does not match expected'
+        );
+
+        $this->assertEquals(
+            $dataSet['email'],
+            $entity->getEmail(),
+            'Entity email does not match expected'
+        );
+
+        $this->assertEquals(
+            $dataSet['displayName'],
+            $entity->getDisplayName(),
+            'Entity display name does not match expected'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\PersonAccount::getById
      */
     public function getByIdReturnsEntityOnFound()
