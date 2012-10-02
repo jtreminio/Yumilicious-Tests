@@ -13,11 +13,36 @@ class PersonAccountTest extends Base
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::create
      */
+    public function createThrowsExceptionWhenPasswordsDoNotMatch()
+    {
+        $expectedException = 'Password must be entered exactly the same twice';
+
+        $this->setExpectedException(
+            'Yumilicious\Exception\Domain',
+            $expectedException
+        );
+
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $dataSet = array(
+            'password'       => 'blah',
+            'passwordVerify' => 'blah123',
+        );
+
+        $domainPersonAccount->create($dataSet);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::create
+     */
     public function createThrowsExceptionOnValidationErrors()
     {
         $expectedException =
             'email - This value should not be blank.<br />' .
-            'password - This value should not be blank.<br />' .
             'displayName - This value should not be blank.<br />' .
             'createdBy - This value should not be blank.<br />';
 
@@ -26,10 +51,23 @@ class PersonAccountTest extends Base
             $expectedException
         );
 
-        $dataSet = array();
+        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('password_hash',))
+            ->getMock();
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
-        $domainPersonAccount = $this->app['domainPersonAccount'];
+        $password_hashResult = '$2y$blah';
+        $domainPersonAccount->expects($this->once())
+            ->method('password_hash')
+            ->will($this->returnValue($password_hashResult));
+
+        $dataSet = array(
+            'password'       => 'blah',
+            'passwordVerify' => 'blah',
+        );
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
         $domainPersonAccount->create($dataSet);
     }
 
