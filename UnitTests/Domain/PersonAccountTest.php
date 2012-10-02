@@ -136,7 +136,7 @@ class PersonAccountTest extends Base
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::getById
      */
-    public function getByIdReturnsEntityOnFound()
+    public function getOneByIdReturnsEntityOnFound()
     {
         $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
@@ -164,7 +164,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        $result = $domainPersonAccount->getById($personId);
+        $result = $domainPersonAccount->getOneById($personId);
 
         $this->assertEquals(
             $account['id'],
