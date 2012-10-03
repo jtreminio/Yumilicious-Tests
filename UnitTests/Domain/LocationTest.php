@@ -11,7 +11,7 @@ class LocationTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Location::addLocation
      */
-    public function addLocationSetsCreatedAtIfEmpty()
+    public function addLocationSetsUpdatedAtIfEmpty()
     {
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
@@ -55,7 +55,7 @@ class LocationTest extends Base
 
         $this->assertEquals(
             $dateTime->format('Y-m-d H:i:s'),
-            $result->getCreatedAt(),
+            $result->getUpdatedAt(),
             'getCreatedAt() was not called correctly'
         );
     }

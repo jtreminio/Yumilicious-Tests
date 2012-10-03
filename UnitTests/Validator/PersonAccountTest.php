@@ -29,11 +29,14 @@ class PersonAccountTest extends Base
 
         $entityPersonAccount->setValidator($validatorPersonAccount);
 
+        $dateTime = new \DateTime();
+
         $dataSet = array(
             'email'    => 'foo@foo.com',
             'password' => '$2y$fiosifhiajff',
             'displayName' => 'Foo Name',
-            'createdBy'   => '123'
+            'updatedBy'   => '123',
+            'updatedAt'   => $dateTime,
         );
 
         $entityPersonAccount->hydrate($dataSet);
@@ -75,7 +78,7 @@ class PersonAccountTest extends Base
         $entityPersonAccount->hydrate($dataSet);
 
         $errors = $entityPersonAccount->validate($entityPersonAccount);
-        $expectedErrorCount = 4;
+        $expectedErrorCount = 5;
 
         $this->assertCount(
             $expectedErrorCount,

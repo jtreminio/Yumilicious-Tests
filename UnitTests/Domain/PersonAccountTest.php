@@ -44,7 +44,7 @@ class PersonAccountTest extends Base
         $expectedException =
             'email - This value should not be blank.<br />' .
             'displayName - This value should not be blank.<br />' .
-            'createdBy - This value should not be blank.<br />';
+            'updatedBy - This value should not be blank.<br />';
 
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
@@ -91,14 +91,14 @@ class PersonAccountTest extends Base
             ->method('create')
             ->will($this->returnValue($createdId));
 
-        $createdBy = 123;
+        $updatedBy = 123;
         $dataSet = array(
             'email'          => 'blah@blah.com',
             'password'       => 'blah',
             'passwordVerify' => 'blah',
             'displayName'    => 'Test Name',
             'isActive'       => 1,
-            'createdBy'      => $createdBy,
+            'updatedBy'      => $updatedBy,
         );
 
         $hashedPassword = '$2y$'.$dataSet['password'];
