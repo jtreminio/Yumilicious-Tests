@@ -3,7 +3,9 @@
 namespace Yumilicious\UnitTests\Domain;
 
 use Yumilicious\UnitTests\Base;
-use Yumilicious\Domain\Location;
+use Yumilicious\Domain;
+use Yumilicious\Entity;
+use Yumilicious\Validator;
 
 class LocationTest extends Base
 {
@@ -63,24 +65,33 @@ class LocationTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Location::addLocation
+     * @group me
      */
     public function addLocationThrowsExceptionOnEntityValidationFailure()
     {
-        $errorPropertyPath = 'My property path';
-        $errorMessage = 'My error message';
+        $errorPropertyPath = 'updatedBy';
+        $errorMessage = 'This value should not be blank.';
 
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
             "{$errorPropertyPath} - {$errorMessage}<br />"
         );
 
+
+        /** @var $domainLocation Domain\Location */
         $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock();
 
+        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getHighestOrderForState'))
+            ->getMock();
+
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
+            ->setMethods(array('validate'))
             ->getMock();
 
         $errorClass = $this->getMockBuilder('\stdClass')
@@ -92,6 +103,11 @@ class LocationTest extends Base
             )
             ->getMock();
 
+        $highestOrder = array('ordering' => 10);
+        $daoLocation->expects($this->once())
+            ->method('getHighestOrderForState')
+            ->will($this->returnValue($highestOrder));
+
         $errorClass->expects($this->once())
             ->method('getPropertyPath')
             ->will($this->returnValue($errorPropertyPath));
@@ -100,15 +116,22 @@ class LocationTest extends Base
             ->method('getMessage')
             ->will($this->returnValue($errorMessage));
 
+        $errors = array($errorClass);
         $entityLocation->expects($this->once())
             ->method('validate')
-            ->will($this->returnValue(array($errorClass)));
+            ->will($this->returnValue($errors));
 
+        $this->app['daoLocation'] = $daoLocation;
         $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
-        $dataSet = array();
+        $dataSet = array(
+            'name'    => 'Test Name',
+            'address' => 'Test Address',
+            'city'    => 'Test City',
+            'state'   => 'TX'
+        );
 
         $domainLocation->addLocation($dataSet);
     }
