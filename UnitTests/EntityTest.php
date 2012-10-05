@@ -155,4 +155,67 @@ class EntityTest extends Base
             'Resulting DateTime string not matching expected'
         );
     }
+
+    /**
+     * @test
+     * @dataProvider providerGetSlugReturnsSluggifiedString
+     */
+    public function getSlugReturnsSluggifiedString(
+        $rawString,
+        $expectedResult
+    )
+    {
+        $entity = $this->getMockBuilder('\Yumilicious\Entity')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $result = $this->invokeMethod(
+            $entity,
+            'getSlug',
+            array($rawString)
+        );
+
+        $this->assertEquals(
+            $expectedResult,
+            $result,
+            'Expected slug did not match actual result'
+        );
+    }
+
+    /**
+     * Provider for getSlugReturnsSluggifiedString
+     */
+    public function providerGetSlugReturnsSluggifiedString()
+    {
+        return array(
+            array(
+                "Mess'd up --text-- just (to) stress /test/ ?our! `little` \\clean\\ url fun.ction!?-->",
+                'messd-up-text-just-to-stress-test-our-little-clean-url-function',
+            ),
+            array(
+                "Mess'd up --text-- just (to) stress /test/ ?our! `little` \\clean\\ url fun.ction!?-->Mess'd up --text-- just (to) stress /tes",
+                'messd-up-text-just-to-stress-test-our-little-clean-url-function-messd-up-text-just-to'
+            ),
+            array(
+                "Perché l'erba è verde?"."'",
+                'perche-lerba-e-verde',
+            ),
+            array(
+                "Peux-tu m'aider s'il te plaît?".",",
+                'peux-tu-maider-sil-te-plait',
+            ),
+            array(
+                "Tänk efter nu – förr'n vi föser dig bort",
+                'tank-efter-nu-forrn-vi-foser-dig-bort',
+            ),
+            array(
+                "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöùúûüýÿ",
+                'aaaaaaaeceeeeiiiinooooouuuuyssaaaaaaaeceeeeiiiinooooouuuuyy',
+            ),
+            array(
+                "My+Last_Crazy|/example",
+                'my-last-crazy-example',
+            ),
+        );
+    }
 }
