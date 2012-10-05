@@ -158,9 +158,10 @@ class EntityTest extends Base
 
     /**
      * @test
-     * @dataProvider providerGetSlugReturnsSluggifiedString
+     * @covers \Yumilicious\Entity::sluggify
+     * @dataProvider providerSluggifyReturnsSluggifiedString
      */
-    public function getSlugReturnsSluggifiedString(
+    public function sluggifyReturnsSluggifiedString(
         $rawString,
         $expectedResult
     )
@@ -171,7 +172,7 @@ class EntityTest extends Base
 
         $result = $this->invokeMethod(
             $entity,
-            'getSlug',
+            'sluggify',
             array($rawString)
         );
 
@@ -183,9 +184,9 @@ class EntityTest extends Base
     }
 
     /**
-     * Provider for getSlugReturnsSluggifiedString
+     * Provider for sluggifyReturnsSluggifiedString
      */
-    public function providerGetSlugReturnsSluggifiedString()
+    public function providersluggifyReturnsSluggifiedString()
     {
         return array(
             array(
