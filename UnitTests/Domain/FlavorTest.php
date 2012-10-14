@@ -813,9 +813,8 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getYogurtFlavors
-     * @group me
      */
-    public function getYogurtFlavorsReturnsFlavors()
+    public function getYogurtFlavorsReturnsExpected()
     {
         $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
             ->getMock();
@@ -834,6 +833,174 @@ class FlavorTest extends Base
             $getYogurtFlavorsReturn,
             $domainFlavor->getYogurtFlavors(),
             'Returned yogurt flavors does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getSortedYogurtFlavors
+     */
+    public function getSortedYogurtFlavorsReturnsExpected()
+    {
+        $yogurtFlavors = array(
+            array('name' => 'zflavor name',),
+            array('name' => 'dflavor name',),
+            array('name' => 'aflavor name',),
+        );
+
+        $expectedResult = array(
+            array('name' => 'aflavor name',),
+            array('name' => 'dflavor name',),
+            array('name' => 'zflavor name',),
+        );
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $daoFlavor->expects($this->once())
+            ->method('getYogurtFlavors')
+            ->will($this->returnValue($yogurtFlavors));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $expectedResult,
+            $domainFlavor->getSortedYogurtFlavors(),
+            'Returned yogurt flavors was not sorted'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getBeverages
+     */
+    public function getBeveragesReturnsExpected()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getBeveragesFlavorsReturn = array('beverage test name');
+        $daoFlavor->expects($this->once())
+            ->method('getBeverages')
+            ->will($this->returnValue($getBeveragesFlavorsReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getBeveragesFlavorsReturn,
+            $domainFlavor->getBeverages(),
+            'Returned beverages do not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getFreshFruitToppings
+     */
+    public function getFreshFruitToppingsReturnsExpected()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getFreshFruitToppingsReturn = array('fruit test name');
+        $daoFlavor->expects($this->once())
+            ->method('getFreshFruitToppings')
+            ->will($this->returnValue($getFreshFruitToppingsReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getFreshFruitToppingsReturn,
+            $domainFlavor->getFreshFruitToppings(),
+            'Returned beverages do not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getDryToppings
+     */
+    public function getDryToppingsReturnsExpected()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getDryToppingsReturn = array('dry fruit test name');
+        $daoFlavor->expects($this->once())
+            ->method('getDryToppings')
+            ->will($this->returnValue($getDryToppingsReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getDryToppingsReturn,
+            $domainFlavor->getDryToppings(),
+            'Returned beverages do not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getLightSyrupToppings
+     */
+    public function getLightSyrupToppingsReturnsExpected()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getLightSyrupToppingsReturn = array('dry fruit test name');
+        $daoFlavor->expects($this->once())
+            ->method('getLightSyrupToppings')
+            ->will($this->returnValue($getLightSyrupToppingsReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getLightSyrupToppingsReturn,
+            $domainFlavor->getLightSyrupToppings(),
+            'Returned beverages do not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getExtraFlavorKeys
+     * @group me
+     */
+    public function getExtraFlavorKeysReturnsExpected()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getExtraFlavorKeysReturn = array('extra flavor test name');
+        $daoFlavor->expects($this->once())
+            ->method('getExtraFlavorKeys')
+            ->will($this->returnValue($getExtraFlavorKeysReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getExtraFlavorKeysReturn,
+            $domainFlavor->getExtraFlavorKeys(),
+            'Returned beverages do not match expected'
         );
     }
 }
