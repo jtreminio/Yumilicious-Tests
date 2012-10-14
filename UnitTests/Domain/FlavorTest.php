@@ -670,4 +670,97 @@ class FlavorTest extends Base
             '::getName() does not match expected'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getall
+     */
+    public function getAllReturnsFalseOnNoActiveResults()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getAllActiveReturn = array();
+        $daoFlavor->expects($this->once())
+            ->method('getAllActive')
+            ->will($this->returnValue($getAllActiveReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        $status = 'active';
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertFalse(
+            $domainFlavor->getAll($status),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getall
+     */
+    public function getAllReturnsFalseOnNoInactiveResults()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getAllActiveReturn = array();
+        $daoFlavor->expects($this->once())
+            ->method('getAllInactive')
+            ->will($this->returnValue($getAllActiveReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        $status = 'inactive';
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertFalse(
+            $domainFlavor->getAll($status),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getall
+     */
+    public function getAllReturnsEntityOnSuccess()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getAllActiveReturn = array(
+            array('name' => 'test name 1'),
+            array('name' => 'test name 2'),
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllActiveReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        $status = 'fauxStatus';
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $result = $domainFlavor->getAll($status);
+
+        $this->assertEquals(
+            $getAllActiveReturn[0]['name'],
+            $result[0]->getName(),
+            'Expected first entity to match name'
+        );
+
+        $this->assertEquals(
+            $getAllActiveReturn[1]['name'],
+            $result[1]->getName(),
+            'Expected second entity to match name'
+        );
+    }
 }
