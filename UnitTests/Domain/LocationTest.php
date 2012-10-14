@@ -65,7 +65,6 @@ class LocationTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Location::addLocation
-     * @group me
      */
     public function addLocationThrowsExceptionOnEntityValidationFailure()
     {
