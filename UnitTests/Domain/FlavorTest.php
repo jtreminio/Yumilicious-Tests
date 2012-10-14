@@ -615,4 +615,59 @@ class FlavorTest extends Base
             'Entity getName() does not match expected'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getOneById
+     */
+    public function getOneByIdReturnsFalseOnNotRecordFound()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getOneByIdReturn = array();
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $id = 123;
+        $this->assertFalse(
+            $domainFlavor->getOneById($id),
+            'Expected ::getOneById() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getOneById
+     */
+    public function getOneByIdEntityOnSuccess()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getOneByIdReturn = array('name' => 'test name');
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $id = 123;
+        $result = $domainFlavor->getOneById($id);
+
+        $this->assertEquals(
+            $getOneByIdReturn['name'],
+            $result->getName(),
+            '::getName() does not match expected'
+        );
+    }
 }
