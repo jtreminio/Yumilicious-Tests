@@ -193,6 +193,67 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::update
+     */
+    public function updateReturnsFalseOnNoUpdate()
+    {
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $entityPersonAccount = new \Yumilicious\Entity\PersonAccount();
+        $entityPersonAccount->setPassword('abc');
+
+        $updateValue = false;
+        $daoPersonAccount->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateValue));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $this->assertFalse(
+            $domainPersonAccount->update($entityPersonAccount, true),
+            'Expecting ::update() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::update
+     */
+    public function updateReturnsEntityOnSuccess()
+    {
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $displayName = 'test name';
+        $entityPersonAccount = new \Yumilicious\Entity\PersonAccount();
+        $entityPersonAccount->setDisplayName($displayName);
+        $entityPersonAccount->setPassword('abc');
+
+        $updateValue = true;
+        $daoPersonAccount->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateValue));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $result = $domainPersonAccount->update($entityPersonAccount, true);
+
+        $this->assertEquals(
+            $displayName,
+            $result->getDisplayName(),
+            'Entity getDisplayName does not equal expected'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\PersonAccount::getOneById
      */
     public function getOneByIdReturnsEntityOnFound()
