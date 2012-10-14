@@ -10,6 +10,59 @@ use Yumilicious\Validator;
 class PersonAccountTest extends Base
 {
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDomainPersonAccount()
+    {
+        return $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
+            ->disableOriginalConstructor()
+            ->setMethods(array('password_hash'))
+            ->getMock();
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::create
+     */
+    public function createReturnsFalseOnAccountNotCreated()
+    {
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+
+        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->setMethods(array('validate'))
+            ->getMock();
+
+        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->getMock();
+
+        $validateReturn = array();
+        $entityPersonAccount->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $createReturn = false;
+        $daoPersonAccount->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($createReturn));
+
+        $this->app['entityPersonAccount'] = $entityPersonAccount;
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $dataSet = array(
+            'password'       => 'blah123',
+            'passwordVerify' => 'blah123',
+        );
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainPersonAccount->create($dataSet),
+            'Expected ::create() to return false'
+        );
+    }
+
+    /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::create
      */
@@ -21,7 +74,9 @@ class PersonAccountTest extends Base
             'Yumilicious\Exception\Domain',
             $expectedException
         );
-        $domainPersonAccount = $this->app['domainPersonAccount'];
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
 
         $dataSet = array(
             'password'       => 'blah',
@@ -47,10 +102,7 @@ class PersonAccountTest extends Base
             $expectedException
         );
 
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_hash',))
-            ->getMock();
+        $domainPersonAccount = $this->getDomainPersonAccount();
 
         $password_hashResult = '$2y$blah';
         $domainPersonAccount->expects($this->once())
@@ -64,6 +116,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $domainPersonAccount->create($dataSet);
     }
 
@@ -73,10 +126,7 @@ class PersonAccountTest extends Base
      */
     public function createReturnsEntityOnSuccess()
     {
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_hash'))
-            ->getMock();
+        $domainPersonAccount = $this->getDomainPersonAccount();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
@@ -106,6 +156,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         /** @var $entity Entity\PersonAccount */
         $entity = $domainPersonAccount->create($dataSet);
 
@@ -134,10 +185,8 @@ class PersonAccountTest extends Base
      */
     public function getOneByIdReturnsEntityOnFound()
     {
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_verify',))
-            ->getMock();
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
@@ -181,10 +230,7 @@ class PersonAccountTest extends Base
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
     {
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_verify',))
-            ->getMock();
+        $domainPersonAccount = $this->getDomainPersonAccount();
 
         $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
             ->disableOriginalConstructor()
@@ -214,6 +260,7 @@ class PersonAccountTest extends Base
 
         $password = 'foobar';
 
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
             'Expecting return false '
@@ -263,6 +310,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
             'Expected Domain\PersonAccount::password_verify to return false'
@@ -306,6 +354,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $result = $domainPersonAccount->getPersonByEmailAndPassword($email, $password);
 
         $this->assertEquals(
