@@ -492,4 +492,127 @@ class FlavorTest extends Base
             'Entity getName() did not match expected'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::update
+     */
+    public function updateReturnsFalseOnFailure()
+    {
+        /** @var $entityFlavor \Yumilicious\Entity\Flavor */
+        $entityFlavor = new \Yumilicious\Entity\Flavor();
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $updateReturn = false;
+        $daoFlavor->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertFalse(
+            $domainFlavor->update($entityFlavor),
+            'Expected ::update() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::update
+     */
+    public function updateReturnsEntityOnSuccess()
+    {
+        /** @var $entityFlavor \Yumilicious\Entity\Flavor */
+        $entityFlavor = new \Yumilicious\Entity\Flavor();
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $entityName = 'test name';
+        $entityFlavor->setName($entityName);
+
+        $updateReturn = true;
+        $daoFlavor->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $result = $domainFlavor->update($entityFlavor);
+
+        $this->assertEquals(
+            $entityName,
+            $result->getName(),
+            'Entity getName() does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnValidateFailure()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'updatedBy - This value should not be blank.<br />'
+        );
+
+        $dataset = array(
+            'name' => 'test name',
+        );
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $domainFlavor->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     */
+    public function updateFromArrayReturnsEntityOnSuccess()
+    {
+        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
+            ->setMethods(array('validate'))
+            ->getMock();
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $validateReturn = array();
+        $entityFlavor->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $updateReturn = true;
+        $daoFlavor->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->app['entityFlavor'] = $entityFlavor;
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        $dataset = array('name' => 'test name');
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $result = $domainFlavor->updateFromArray($dataset);
+
+        $this->assertEquals(
+            $dataset['name'],
+            $result->getName(),
+            'Entity getName() does not match expected'
+        );
+    }
 }
