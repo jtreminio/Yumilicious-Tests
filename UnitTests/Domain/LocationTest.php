@@ -10,35 +10,40 @@ use Yumilicious\Validator;
 class LocationTest extends Base
 {
     /**
-     * @test
-     * @covers \Yumilicious\Domain\Location::addLocation
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    public function addLocationSetsUpdatedAtIfEmpty()
+    protected function getDaoLocation()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'getDateTime',
-                    'validate',
-                )
-            )
+        return $this->getMockBuilder('\Yumilicious\Dao\Location')
             ->getMock();
+    }
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEntityLocation()
+    {
+        return $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(array('validate'))
             ->getMock();
+    }
 
-        $dateTime = new \DateTime();
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::create
+     */
+    public function createReturnsEntityOnSuccess()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
 
-        $domainLocation->expects($this->once())
-            ->method('getDateTime')
-            ->will($this->returnValue($dateTime));
+        $daoLocation = $this->getDaoLocation();
+        $entityLocation = $this->getEntityLocation();
 
-        $validatePasses = true;
-        $domainLocation->expects($this->once())
+        $validateReturn = array();
+        $entityLocation->expects($this->once())
             ->method('validate')
-            ->will($this->returnValue($validatePasses));
+            ->will($this->returnValue($validateReturn));
 
         $lastInsertId = 15;
         $daoLocation->expects($this->once())
@@ -46,6 +51,7 @@ class LocationTest extends Base
             ->will($this->returnValue($lastInsertId));
 
         $this->app['daoLocation'] = $daoLocation;
+        $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -53,75 +59,32 @@ class LocationTest extends Base
             'name' => 'test name',
         );
 
-        $result = $domainLocation->addLocation($dataSet);
+        $result = $domainLocation->create($dataSet);
 
         $this->assertEquals(
-            $dateTime->format('Y-m-d H:i:s'),
-            $result->getUpdatedAt(),
+            $dataSet['name'],
+            $result->getName(),
             'getCreatedAt() was not called correctly'
         );
     }
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\Location::addLocation
+     * @covers \Yumilicious\Domain\Location::create
      */
-    public function addLocationThrowsExceptionOnEntityValidationFailure()
+    public function createThrowsExceptionOnEntityValidationFailure()
     {
-        $errorPropertyPath = 'updatedBy';
-        $errorMessage = 'This value should not be blank.';
-
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
-            "{$errorPropertyPath} - {$errorMessage}<br />"
+            "updatedBy - This value should not be blank.<br />"
         );
 
-
         /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getHighestOrderForState'))
-            ->getMock();
-
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('validate'))
-            ->getMock();
-
-        $errorClass = $this->getMockBuilder('\stdClass')
-            ->setMethods(
-                array(
-                    'getPropertyPath',
-                    'getMessage',
-                )
-            )
-            ->getMock();
-
-        $highestOrder = array('ordering' => 10);
-        $daoLocation->expects($this->once())
-            ->method('getHighestOrderForState')
-            ->will($this->returnValue($highestOrder));
-
-        $errorClass->expects($this->once())
-            ->method('getPropertyPath')
-            ->will($this->returnValue($errorPropertyPath));
-
-        $errorClass->expects($this->once())
-            ->method('getMessage')
-            ->will($this->returnValue($errorMessage));
-
-        $errors = array($errorClass);
-        $entityLocation->expects($this->once())
-            ->method('validate')
-            ->will($this->returnValue($errors));
+        $daoLocation = $this->getDaoLocation();
 
         $this->app['daoLocation'] = $daoLocation;
-        $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -132,81 +95,24 @@ class LocationTest extends Base
             'state'   => 'TX'
         );
 
-        $domainLocation->addLocation($dataSet);
+        $domainLocation->create($dataSet);
     }
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\Location::addLocation
+     * @covers \Yumilicious\Domain\Location::create
      */
-    public function addLocationReturnsEntityOnSuccessfulCreation()
+    public function createReturnsFalseOnFailedCreateCall()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(
-                array(
-                    'getDateTime',
-                    'validate',
-                )
-            )
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoLocation = $this->getDaoLocation();
+        $entityLocation = $this->getEntityLocation();
 
-        $dateTime = new \DateTime();
-
-        $domainLocation->expects($this->once())
-            ->method('getDateTime')
-            ->will($this->returnValue($dateTime));
-
-        $validatePasses = true;
-        $domainLocation->expects($this->once())
+        $validateValue = array();
+        $entityLocation->expects($this->once())
             ->method('validate')
-            ->will($this->returnValue($validatePasses));
-
-        $lastInsertId = 15;
-        $daoLocation->expects($this->once())
-            ->method('create')
-            ->will($this->returnValue($lastInsertId));
-
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
-
-        $dataSet = array(
-            'name' => 'test name',
-        );
-
-        $result = $domainLocation->addLocation($dataSet);
-
-        $this->assertEquals(
-            $dataSet['name'],
-            $result->getName(),
-            'Expecting result to be hydrated Entity\Location'
-        );
-    }
-
-    /**
-     * @test
-     * @covers \Yumilicious\Domain\Location::addLocation
-     */
-    public function addLocationReturnsFalseOnFailedCreateCall()
-    {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('validate',))
-            ->getMock();
-
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $validatePasses = true;
-        $domainLocation->expects($this->once())
-            ->method('validate')
-            ->will($this->returnValue($validatePasses));
+            ->will($this->returnValue($validateValue));
 
         $lastInsertId = false;
         $daoLocation->expects($this->once())
@@ -214,6 +120,7 @@ class LocationTest extends Base
             ->will($this->returnValue($lastInsertId));
 
         $this->app['daoLocation'] = $daoLocation;
+        $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -222,7 +129,7 @@ class LocationTest extends Base
         );
 
         $this->assertFalse(
-            $domainLocation->addLocation($dataSet),
+            $domainLocation->create($dataSet),
             'Expecting result to be false'
         );
     }
@@ -246,9 +153,7 @@ class LocationTest extends Base
             ->disableOriginalConstructor()
             ->getMock();
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoLocation = $this->getDaoLocation();
 
         $id = 1;
         $getOneByIdResult = array(
@@ -297,9 +202,7 @@ class LocationTest extends Base
             ->setMethods(null)
             ->getMock();
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoLocation = $this->getDaoLocation();
 
         $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
             ->disableOriginalConstructor()
@@ -338,9 +241,7 @@ class LocationTest extends Base
             ->setMethods(null)
             ->getMock();
 
-        $daoLocation = $this->getMockBuilder('\Yumilicious\Dao\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoLocation = $this->getDaoLocation();
 
         $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
             ->disableOriginalConstructor()
