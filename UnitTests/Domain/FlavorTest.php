@@ -809,4 +809,31 @@ class FlavorTest extends Base
             array(0, 1),
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getYogurtFlavors
+     * @group me
+     */
+    public function getYogurtFlavorsReturnsFlavors()
+    {
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $getYogurtFlavorsReturn = array('flavor test name');
+        $daoFlavor->expects($this->once())
+            ->method('getYogurtFlavors')
+            ->will($this->returnValue($getYogurtFlavorsReturn));
+
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertEquals(
+            $getYogurtFlavorsReturn,
+            $domainFlavor->getYogurtFlavors(),
+            'Returned yogurt flavors does not match expected'
+        );
+    }
 }
