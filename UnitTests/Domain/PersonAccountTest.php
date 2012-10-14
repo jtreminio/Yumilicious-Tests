@@ -254,6 +254,118 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnPasswordVerifyNotSetWhenPasswordIsSet()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Password must be entered exactly the same twice'
+        );
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+
+        $dataset = array('password' => 'fubar');
+
+        $domainPersonAccount->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnPasswordsNotMatch()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Password must be entered exactly the same twice'
+        );
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+
+        $dataset = array(
+            'password'       => 'fubar',
+            'passwordVerify' => 'rabuf',
+        );
+
+        $domainPersonAccount->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnValidateFailed()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'updatedBy - This value should not be blank.<br />'
+        );
+
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+
+        $dataset = array(
+            'displayName'    => 'test name',
+            'password'       => '$2y$blah',
+            'passwordVerify' => '$2y$blah',
+            'email'          => 'test@email.com',
+        );
+
+        $domainPersonAccount->expects($this->once())
+            ->method('password_hash')
+            ->will($this->returnValue($dataset['password']));
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $domainPersonAccount->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::updateFromArray
+     */
+    public function updateFromArrayReturnsEntityOnSuccess()
+    {
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $updateValue = true;
+        $daoPersonAccount->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateValue));
+
+        $dataset = array(
+            'displayName'    => 'test name',
+            'password'       => '$2y$blah',
+            'passwordVerify' => '$2y$blah',
+            'email'          => 'test@email.com',
+            'updatedBy'      => '7',
+        );
+
+        $domainPersonAccount->expects($this->once())
+            ->method('password_hash')
+            ->will($this->returnValue($dataset['password']));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $result = $domainPersonAccount->updateFromArray($dataset);
+
+        $this->assertEquals(
+            $dataset['displayName'],
+            $result->getDisplayName(),
+            'Display names do not match'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\PersonAccount::getOneById
      */
     public function getOneByIdReturnsEntityOnFound()
