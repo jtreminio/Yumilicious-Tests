@@ -42,9 +42,9 @@ class PersonAccountTest extends Base
     public function createThrowsExceptionOnValidationErrors()
     {
         $expectedException =
+            'updatedBy - This value should not be blank.<br />' .
             'email - This value should not be blank.<br />' .
-            'displayName - This value should not be blank.<br />' .
-            'updatedBy - This value should not be blank.<br />';
+            'displayName - This value should not be blank.<br />';
 
         $this->setExpectedException(
             'Yumilicious\Exception\Domain',
@@ -134,7 +134,7 @@ class PersonAccountTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\PersonAccount::getById
+     * @covers \Yumilicious\Domain\PersonAccount::getOneById
      */
     public function getOneByIdReturnsEntityOnFound()
     {
