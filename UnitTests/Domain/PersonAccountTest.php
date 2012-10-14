@@ -366,6 +366,68 @@ class PersonAccountTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getAll
+     */
+    public function getAllReturnsFalseOnNoResults()
+    {
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $getAllValue = array();
+        $daoPersonAccount->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllValue));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainPersonAccount->getAll(),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getAll
+     */
+    public function getAllReturnsMultipleEntities()
+    {
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $getAllValue = array(
+            array('displayName' => 'sample name 1'),
+            array('displayName' => 'sample name 2'),
+        );
+        $daoPersonAccount->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllValue));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $result = $domainPersonAccount->getAll();
+
+        $this->assertEquals(
+            $getAllValue[0]['displayName'],
+            $result[0]->getDisplayName(),
+            'Expected displayNames to match'
+        );
+
+        $this->assertEquals(
+            $getAllValue[1]['displayName'],
+            $result[1]->getDisplayName(),
+            'Expected displayNames to match'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\PersonAccount::getOneById
      */
     public function getOneByIdReturnsEntityOnFound()
