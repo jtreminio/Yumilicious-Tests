@@ -110,9 +110,9 @@ class PersonAccountTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Dao\PersonAccount::getById
+     * @covers \Yumilicious\Dao\PersonAccount::getOneById
      */
-    public function getByIdReturnsExpected()
+    public function getOneByIdReturnsExpected()
     {
         $daoPersonAccount = $this->app['daoPersonAccount'];
 
