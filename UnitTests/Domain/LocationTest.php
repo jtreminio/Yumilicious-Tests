@@ -21,9 +21,26 @@ class LocationTest extends Base
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
+    protected function getDomainLocationSchedule()
+    {
+        return $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
     protected function getEntityLocation()
     {
         return $this->getMockBuilder('\Yumilicious\Entity\Location')
+            ->setMethods(array('validate'))
+            ->getMock();
+    }
+
+    protected function getEntityLocationSchedule()
+    {
+        return $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
             ->setMethods(array('validate'))
             ->getMock();
     }
@@ -37,7 +54,7 @@ class LocationTest extends Base
         /** @var $domainLocation Domain\Location */
         $domainLocation = $this->app['domainLocation'];
 
-        $daoLocation = $this->getDaoLocation();
+        $daoLocation    = $this->getDaoLocation();
         $entityLocation = $this->getEntityLocation();
 
         $validateReturn = array();
@@ -106,7 +123,7 @@ class LocationTest extends Base
     {
         $domainLocation = $this->app['domainLocation'];
 
-        $daoLocation = $this->getDaoLocation();
+        $daoLocation    = $this->getDaoLocation();
         $entityLocation = $this->getEntityLocation();
 
         $validateValue = array();
@@ -140,20 +157,12 @@ class LocationTest extends Base
      */
     public function getOneByIdReturnsResults()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
-        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
+        $entityLocationSchedule = $this->getEntityLocationSchedule();
 
-        $entityLocationSchedule = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $daoLocation = $this->getDaoLocation();
+        $daoLocation            = $this->getDaoLocation();
 
         $id = 1;
         $getOneByIdResult = array(
@@ -184,11 +193,6 @@ class LocationTest extends Base
             $result->getId(),
             'Expected an entity result'
         );
-
-        $this->assertTrue(
-            is_a($result->getSchedule(), '\Yumilicious\Entity\LocationSchedule'),
-            'Expecting location key to contain Entity\LocationSchedule'
-        );
     }
 
     /**
@@ -197,29 +201,18 @@ class LocationTest extends Base
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
 
         $daoLocation = $this->getDaoLocation();
 
-        $entityLocation = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $id = 1;
         $getOneByIdResult = false;
-
         $daoLocation->expects($this->once())
             ->method('getOneById')
             ->with($id)
             ->will($this->returnValue($getOneByIdResult));
 
-        $entityLocation->expects($this->never())
-            ->method('hydrate');
-
-        $this->app['entityLocation'] = $entityLocation;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
@@ -236,32 +229,11 @@ class LocationTest extends Base
      */
     public function getAllReturnsResults()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
 
-        $daoLocation = $this->getDaoLocation();
-
-        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getMultipleSchedules',))
-            ->getMock();
-
-        $entityLocationScheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-
-        $entityLocationScheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-
-        $entityLocationScheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $daoLocation            = $this->getDaoLocation();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
 
         $getAllResult = array(
             array(
@@ -282,15 +254,13 @@ class LocationTest extends Base
             ->method('getAllActive')
             ->will($this->returnValue($getAllResult));
 
+        $entityLocationScheduleOne   = new Entity\LocationSchedule();
+        $entityLocationScheduleTwo   = new Entity\LocationSchedule();
+        $entityLocationScheduleThree = new Entity\LocationSchedule();
+
         $entityLocationScheduleOne->setLocationId($getAllResult[0]['id']);
         $entityLocationScheduleTwo->setLocationId($getAllResult[1]['id']);
         $entityLocationScheduleThree->setLocationId($getAllResult[2]['id']);
-
-        $scheduleIds = array(
-            $getAllResult[0]['id'],
-            $getAllResult[1]['id'],
-            $getAllResult[2]['id'],
-        );
 
         $multipleScheduleEntityArray = array(
             $entityLocationScheduleOne,
@@ -300,54 +270,47 @@ class LocationTest extends Base
 
         $domainLocationSchedule->expects($this->once())
             ->method('getMultipleSchedules')
-            ->with($scheduleIds)
             ->will($this->returnValue($multipleScheduleEntityArray));
-
 
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
         $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
-        $expectedResult = $getAllResult;
-        $expectedResult[0]['schedule']= $entityLocationScheduleOne;
-        $expectedResult[1]['schedule']= $entityLocationScheduleTwo;
-        $expectedResult[2]['schedule']= $entityLocationScheduleThree;
-
         $result = $domainLocation->getAll('active');
 
         $this->assertEquals(
-            $expectedResult[0]['id'],
+            $getAllResult[0]['id'],
             $result[0]->getId(),
             'Expected first location ID not correct'
         );
 
         $this->assertEquals(
-            $expectedResult[1]['id'],
+            $getAllResult[1]['id'],
             $result[1]->getId(),
             'Expected second location ID not correct'
         );
 
         $this->assertEquals(
-            $expectedResult[2]['id'],
+            $getAllResult[2]['id'],
             $result[2]->getId(),
             'Expected third location ID not correct'
         );
 
         $this->assertEquals(
-            $expectedResult[0]['schedule']->getLocationId(),
+            $entityLocationScheduleOne->getLocationId(),
             $result[0]->getSchedule()->getLocationId(),
             "Expected first location schedule's locationId not correct"
         );
 
         $this->assertEquals(
-            $expectedResult[1]['schedule']->getLocationId(),
+            $entityLocationScheduleTwo->getLocationId(),
             $result[1]->getSchedule()->getLocationId(),
             "Expected second location schedule's locationId not correct"
         );
 
         $this->assertEquals(
-            $expectedResult[2]['schedule']->getLocationId(),
+            $entityLocationScheduleThree->getLocationId(),
             $result[2]->getSchedule()->getLocationId(),
             "Expected third location schedule's locationId not correct"
         );
@@ -359,29 +322,14 @@ class LocationTest extends Base
      */
     public function separateIntoStatesReturnsCorrectlyShapedArray()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
         $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
-            ->disableOriginalConstructor()
             ->getMock();
 
-        $locationOne = $this->getMockBuilder('\stdClass')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getState'))
-            ->getMock();
-
-        $locationTwo = $this->getMockBuilder('\stdClass')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getState'))
-            ->getMock();
-
-        $locationThree = $this->getMockBuilder('\stdClass')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getState'))
-            ->getMock();
+        $locationOne = new Entity\Location();
+        $locationTwo = new Entity\Location();
+        $locationThree = new Entity\Location();
 
         $states = array(
             'AK' => 'Alaska',
@@ -399,25 +347,19 @@ class LocationTest extends Base
             ->will($this->returnValue($states));
 
         $locationOneState = 'AL';
-        $locationOne->expects($this->once())
-            ->method('getState')
-            ->will($this->returnValue($locationOneState));
+        $locationOne->setState($locationOneState);
 
         $locationTwoState = 'CT';
-        $locationTwo->expects($this->once())
-            ->method('getState')
-            ->will($this->returnValue($locationTwoState));
+        $locationTwo->setState($locationTwoState);
 
         $locationThreeState = 'AL';
-        $locationThree->expects($this->once())
-            ->method('getState')
-            ->will($this->returnValue($locationThreeState));
+        $locationThree->setState($locationThreeState);
+
+        $arrayOfLocations = array($locationOne, $locationTwo, $locationThree);
 
         $this->app['daoState'] = $daoState;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
-
-        $arrayOfLocations = array($locationOne, $locationTwo, $locationThree);
 
         $results = $domainLocation->separateIntoStates($arrayOfLocations);
 
@@ -440,44 +382,15 @@ class LocationTest extends Base
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
-        $locationOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
+        $locationOne   = new Entity\Location();
+        $locationTwo   = new Entity\Location();
+        $locationThree = new Entity\Location();
 
-        $locationTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $locationThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $scheduleOne   = new Entity\LocationSchedule();
+        $scheduleTwo   = new Entity\LocationSchedule();
+        $scheduleThree = new Entity\LocationSchedule();
 
         $locationIdOne = 123;
         $locationOne->setId($locationIdOne);
@@ -491,9 +404,6 @@ class LocationTest extends Base
         $locationThree->setId(789);
         $scheduleThree->setLocationId($locationIdThree);
 
-        $domainLocationSchedule->expects($this->never())
-            ->method('createEmptySchedules');
-
         $locationsArray = array(
             $locationOne,
             $locationTwo,
@@ -505,8 +415,6 @@ class LocationTest extends Base
             $scheduleTwo,
             $scheduleThree,
         );
-
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -559,64 +467,22 @@ class LocationTest extends Base
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedulesWhenSchedulesDoNotExist()
     {
-        $domainLocation = $this->getMockBuilder('\Yumilicious\Domain\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainLocation = $this->app['domainLocation'];
 
-        $locationOne = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
+        $locationOne   = $this->getEntityLocation();
+        $locationTwo   = $this->getEntityLocation();
+        $locationThree = $this->getEntityLocation();
+        $locationFour  = $this->getEntityLocation();
+        $locationFive  = $this->getEntityLocation();
 
-        $locationTwo = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
+        $scheduleOne   = $this->getEntityLocationSchedule();
+        $scheduleTwo   = $this->getEntityLocationSchedule();
+        $scheduleThree = $this->getEntityLocationSchedule();
 
-        $locationThree = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
+        $missingScheduleOne = $this->getEntityLocationSchedule();
+        $missingScheduleTwo = $this->getEntityLocationSchedule();
 
-        $locationFour = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $locationFive = $this->getMockBuilder('\Yumilicious\Entity\Location')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $scheduleThree = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $missingScheduleOne = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $missingScheduleTwo = $this->getMockBuilder('\Yumilicious\Entity\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__construct'))
-            ->getMock();
-
-        $domainLocationSchedule = $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
 
         $locationIdOne = 123;
         $locationOne->setId($locationIdOne);
