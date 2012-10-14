@@ -391,4 +391,105 @@ class FlavorTest extends Base
             'Flavor array was not properly alphabetized'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::create
+     */
+    public function createThrowsExceptionOnValidateReturnFalse()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'updatedBy - This value should not be blank.<br />'
+        );
+
+        $dataset = array(
+            'name' => 'test name',
+        );
+
+        /** @var $domainFlavor Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $domainFlavor->create($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::create
+     */
+    public function createReturnsFalseOnDaoCreateFailed()
+    {
+        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
+            ->getMock();
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $validateReturn = array();
+        $entityFlavor->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $createReturn = false;
+        $daoFlavor->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($createReturn));
+
+        $dataset = array(
+            'name' => 'test name',
+        );
+
+        $this->app['entityFlavor'] = $entityFlavor;
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $this->assertFalse(
+            $domainFlavor->create($dataset),
+            'Expected return to be false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::create
+     */
+    public function createReturnsEntityOnSuccess()
+    {
+        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
+            ->setMethods(array('validate'))
+            ->getMock();
+
+        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+
+        $validateReturn = array();
+        $entityFlavor->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $createReturn = true;
+        $daoFlavor->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($createReturn));
+
+        $dataset = array(
+            'name' => 'test name',
+        );
+
+        $this->app['entityFlavor'] = $entityFlavor;
+        $this->app['daoFlavor'] = $daoFlavor;
+
+        /** @var $domainFlavor Flavor */
+        $domainFlavor = $this->app['domainFlavor'];
+
+        $result = $domainFlavor->create($dataset);
+
+        $this->assertEquals(
+            $dataset['name'],
+            $result->getName(),
+            'Entity getName() did not match expected'
+        );
+    }
 }
