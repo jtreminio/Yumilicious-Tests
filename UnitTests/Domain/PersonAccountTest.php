@@ -429,6 +429,35 @@ class PersonAccountTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::getOneById
+     * @group me
+     */
+    public function getOneByIdReturnsFalseOnNoResult()
+    {
+        /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+
+        $id = 123;
+
+        $getOneByIdValue = array();
+        $daoPersonAccount->expects($this->once())
+            ->method('getOneById')
+            ->with($id)
+            ->will($this->returnValue($getOneByIdValue));
+
+        $this->app['daoPersonAccount'] = $daoPersonAccount;
+
+        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainPersonAccount->getOneById($id),
+            'Expected ::getOneById() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\PersonAccount::getOneById
      */
     public function getOneByIdReturnsEntityOnFound()
     {
