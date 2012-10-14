@@ -21,11 +21,7 @@ class PersonAccountTest extends Base
             'Yumilicious\Exception\Domain',
             $expectedException
         );
-
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $domainPersonAccount = $this->app['domainPersonAccount'];
 
         $dataSet = array(
             'password'       => 'blah',
