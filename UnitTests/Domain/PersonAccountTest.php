@@ -429,7 +429,6 @@ class PersonAccountTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::getOneById
-     * @group me
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
