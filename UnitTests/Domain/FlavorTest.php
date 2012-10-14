@@ -766,52 +766,6 @@ class FlavorTest extends Base
 
     /**
      * @test
-     * @dataProvider providerToggleActivationReturnsExpected
-     * @covers \Yumilicious\Domain\Flavor::toggleActivation
-     */
-    public function toggleActivationReturnsExpected(
-        $isActiveStatus,
-        $expectedIsActiveResult
-    ){
-        $entityFlavor = new \Yumilicious\Entity\Flavor();
-        $entityFlavor->setIsActive($isActiveStatus);
-
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
-
-        $updateReturn = true;
-        $daoFlavor->expects($this->once())
-            ->method('update')
-            ->will($this->returnValue($updateReturn));
-
-        $this->app['daoFlavor'] = $daoFlavor;
-
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
-
-        $result = $domainFlavor->toggleActivation($entityFlavor);
-
-        $this->assertEquals(
-            $expectedIsActiveResult,
-            $result->getIsActive()
-        );
-    }
-
-    /**
-     * Provider for toggleActivationReturnsExpected()
-     *
-     * @return array
-     */
-    public function providerToggleActivationReturnsExpected()
-    {
-        return array(
-            array(1, 0),
-            array(0, 1),
-        );
-    }
-
-    /**
-     * @test
      * @covers \Yumilicious\Domain\Flavor::getYogurtFlavors
      */
     public function getYogurtFlavorsReturnsExpected()
