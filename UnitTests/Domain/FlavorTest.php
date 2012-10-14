@@ -980,7 +980,6 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getExtraFlavorKeys
-     * @group me
      */
     public function getExtraFlavorKeysReturnsExpected()
     {
