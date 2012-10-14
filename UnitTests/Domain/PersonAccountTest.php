@@ -21,6 +21,25 @@ class PersonAccountTest extends Base
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDaoPersonAccount()
+    {
+        return $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
+            ->getMock();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEntityPersonAccount()
+    {
+        return $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
+            ->setMethods(array('validate'))
+            ->getMock();
+    }
+
+    /**
      * @test
      * @covers \Yumilicious\Domain\PersonAccount::create
      */
@@ -29,12 +48,8 @@ class PersonAccountTest extends Base
         /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
 
-        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
-            ->setMethods(array('validate'))
-            ->getMock();
-
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
+        $entityPersonAccount = $this->getEntityPersonAccount();
 
         $validateReturn = array();
         $entityPersonAccount->expects($this->once())
@@ -104,15 +119,14 @@ class PersonAccountTest extends Base
 
         $domainPersonAccount = $this->getDomainPersonAccount();
 
-        $password_hashResult = '$2y$blah';
+        $dataSet = array(
+            'password'       => '$2y$blah',
+            'passwordVerify' => '$2y$blah',
+        );
+
         $domainPersonAccount->expects($this->once())
             ->method('password_hash')
-            ->will($this->returnValue($password_hashResult));
-
-        $dataSet = array(
-            'password'       => 'blah',
-            'passwordVerify' => 'blah',
-        );
+            ->will($this->returnValue($dataSet['password']));
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
@@ -128,9 +142,7 @@ class PersonAccountTest extends Base
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
 
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
 
         $createdId = 321;
         $daoPersonAccount->expects($this->once())
@@ -188,9 +200,7 @@ class PersonAccountTest extends Base
         /** @var $domainPersonAccount \Yumilicious\Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
 
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
 
         $personId = 123;
         $email = 'foo@bar.com';
@@ -232,13 +242,9 @@ class PersonAccountTest extends Base
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
 
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
 
-        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $entityPersonAccount = $this->getEntityPersonAccount();
 
         $email = 'test@test.com';
         $accountFound = false;
@@ -281,12 +287,9 @@ class PersonAccountTest extends Base
             ->setMethods(array('password_verify',))
             ->getMock();
 
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
 
         $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
-            ->disableOriginalConstructor()
             ->getMock();
 
         $expectedPersonAccount = array('password' => 'BADPASSWORD');
@@ -331,9 +334,7 @@ class PersonAccountTest extends Base
             ->setMethods(array('password_verify',))
             ->getMock();
 
-        $daoPersonAccount = $this->getMockBuilder('\Yumilicious\Dao\PersonAccount')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoPersonAccount = $this->getDaoPersonAccount();
 
         $expectedPersonAccount = array(
             'email'    => $email,
