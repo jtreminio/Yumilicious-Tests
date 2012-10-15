@@ -693,6 +693,66 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Location::delete
+     */
+    public function deleteReturnsFalseOnLocationNotFound()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $deleteValue = false;
+        $daoLocation->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteValue));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $locationId = 123;
+        $this->assertFalse(
+            $domainLocation->delete($locationId),
+            '::delete() expected to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::delete
+     */
+    public function deleteReturnsTrueOnDeletion()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation            = $this->getDaoLocation();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
+
+        $deleteValue = true;
+        $daoLocation->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteValue));
+
+        $domainLocationSchedule->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteValue));
+
+        $this->app['daoLocation']            = $daoLocation;
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $locationId = 123;
+        $this->assertTrue(
+            $domainLocation->delete($locationId),
+            '::delete() expected to return true'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\Location::mapMultipleSchedulesToLocations
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
