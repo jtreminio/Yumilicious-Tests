@@ -30,7 +30,7 @@ class LocationScheduleTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\Location::getSchedule
+     * @covers \Yumilicious\Domain\LocationSchedule::getSchedule
      */
     public function getScheduleReturnsHydratedEntity()
     {
@@ -60,6 +60,73 @@ class LocationScheduleTest extends Base
         $this->assertEquals(
             $result->getLocationId(),
             $locationId,
+            'LocationId did not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::getMultipleSchedules
+     */
+    public function getMultipleSchedulesReturnsFalseOnNoArray()
+    {
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $locationIds = false;
+
+        $this->assertFalse(
+            $domainLocationSchedule->getMultipleSchedules($locationIds),
+            '::getMultipleSchedules() expected to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::getMultipleSchedules
+     */
+    public function getMultipleSchedulesReturnsMultipleEntities()
+    {
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+
+        $daoLocationSchedule = $this->getDaoLocationSchedule();
+
+        $locationIds = array(123, 456, 789);
+
+        $multipleSchedules = array(
+            array('locationId' => 123),
+            array('locationId' => 456),
+            array('locationId' => 789),
+        );
+
+        $daoLocationSchedule->expects($this->once())
+            ->method('getMultiple')
+            ->with($locationIds)
+            ->will($this->returnValue($multipleSchedules));
+
+        $this->app['daoLocationSchedule'] = $daoLocationSchedule;
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $result = $domainLocationSchedule->getMultipleSchedules($locationIds);
+
+        $this->assertEquals(
+            $multipleSchedules[0]['locationId'],
+            $result[0]->getLocationId(),
+            'LocationId did not match expected'
+        );
+
+        $this->assertEquals(
+            $multipleSchedules[1]['locationId'],
+            $result[1]->getLocationId(),
+            'LocationId did not match expected'
+        );
+
+        $this->assertEquals(
+            $multipleSchedules[2]['locationId'],
+            $result[2]->getLocationId(),
             'LocationId did not match expected'
         );
     }
