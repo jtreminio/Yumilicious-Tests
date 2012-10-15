@@ -227,6 +227,60 @@ class LocationTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Location::getAll
      */
+    public function getAllReturnsFalseOnNoResult()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $getAllInactiveReturn = array();
+        $daoLocation->expects($this->once())
+            ->method('getAllInactive')
+            ->will($this->returnValue($getAllInactiveReturn));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $status = 'inactive';
+        $this->assertFalse(
+            $domainLocation->getAll($status),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::getAll
+     */
+    public function getAllReturnsFalseOnNoResultWithNoStatus()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $getAllReturn = array();
+        $daoLocation->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllReturn));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $status = 'fubar';
+        $this->assertFalse(
+            $domainLocation->getAll($status),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::getAll
+     */
     public function getAllReturnsResults()
     {
         /** @var $domainLocation Domain\Location */
@@ -318,6 +372,151 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Location::update
+     */
+    public function updateReturnsFalseOnDaoUpdateFail()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $updateReturn = false;
+        $daoLocation->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $entity = new Entity\Location();
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainLocation->update($entity),
+            'Expected ::update() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::update
+     */
+    public function updateReturnsEntityOnSuccess()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
+
+        $updateReturn = true;
+        $daoLocation->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $domainLocationSchedule->expects($this->once())
+            ->method('update');
+
+        $entity = new Entity\Location();
+        $entity->setSchedule(new Entity\LocationSchedule());
+        $entity->setName('foo test');
+
+        $this->app['daoLocation']            = $daoLocation;
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $result = $domainLocation->update($entity);
+
+        $this->assertEquals(
+            $entity->getName(),
+            $result->getName(),
+            'Expected entity getName() to match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::updateFromArray
+     */
+    public function updateFromArrayReturnsEntityOnSuccess()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+        $domainLocationSchedule = $this->getDomainLocationSchedule();
+
+        $updateValue = true;
+        $daoLocation->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateValue));
+
+        $locationDataset = array(
+            'name' => 'location name',
+            'address' => 'location address',
+            'city' => 'location city',
+            'state' => 'tx',
+            'email' => 'local@email.com',
+            'updatedBy' => 123,
+        );
+
+        $scheduleDataset = array(
+            'locationId' => 123,
+        );
+
+        $this->app['daoLocation']            = $daoLocation;
+        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $result = $domainLocation->updateFromArray($locationDataset, $scheduleDataset);
+
+        $this->assertEquals(
+            $locationDataset['name'],
+            $result->getName(),
+            'Location entity name did not match expected'
+        );
+
+        $this->assertEquals(
+            $scheduleDataset['locationId'],
+            $result->getSchedule()->getLocationId(),
+            'Location schedule locationId did not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnNonValidation()
+    {
+        $this->setExpectedException(
+            'Yumilicious\Exception\Domain',
+            'updatedBy - This value should not be blank.<br />'
+        );
+
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $locationDataset = array(
+            'name' => 'location name',
+            'address' => 'location address',
+            'city' => 'location city',
+            'state' => 'tx',
+            'email' => 'local@email.com',
+        );
+
+        $scheduleDataset = array();
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $result = $domainLocation->updateFromArray($locationDataset, $scheduleDataset);
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\Location::separateIntoStates
      */
     public function separateIntoStatesReturnsCorrectlyShapedArray()
@@ -373,6 +572,62 @@ class LocationTest extends Base
         $this->assertCount(
             $expectedConnecticutCount,
             $results['Connecticut']
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::getStates
+     */
+    public function getStatesReturnsStates()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
+            ->getMock();
+
+        $getStatesValue = array('TX' => 'Texas');
+        $daoState->expects($this->once())
+            ->method('getStates')
+            ->will($this->returnValue($getStatesValue));
+
+        $this->app['daoState'] = $daoState;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $result = $domainLocation->getStates();
+
+        $this->assertEquals(
+            $getStatesValue['TX'],
+            $result['TX']
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::getStates
+     */
+    public function getStatesReturnsFalseOnNoStates()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
+            ->getMock();
+
+        $getStatesValue = false;
+        $daoState->expects($this->once())
+            ->method('getStates')
+            ->will($this->returnValue($getStatesValue));
+
+        $this->app['daoState'] = $daoState;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainLocation->getStates(),
+            'Expected false from ::getStates()'
         );
     }
 
