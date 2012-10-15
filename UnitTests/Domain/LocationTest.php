@@ -633,6 +633,66 @@ class LocationTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Location::getOrderingForNewLocation
+     */
+    public function getOrderingForNewLocationReturns10OnNoExistingNumber()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $getHighestOrderForStateValue = null;
+        $daoLocation->expects($this->once())
+            ->method('getHighestOrderForState')
+            ->will($this->returnValue($getHighestOrderForStateValue));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $expectedReturnValue = 10;
+        $state = 'tx';
+
+        $this->assertEquals(
+            $expectedReturnValue,
+            $domainLocation->getOrderingForNewLocation($state),
+            'Expected return value of 10'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Location::getOrderingForNewLocation
+     */
+    public function getOrderingForNewLocationReturnsExpectedValue()
+    {
+        /** @var $domainLocation Domain\Location */
+        $domainLocation = $this->app['domainLocation'];
+
+        $daoLocation = $this->getDaoLocation();
+
+        $getHighestOrderForStateValue = array('ordering' => 10);
+        $daoLocation->expects($this->once())
+            ->method('getHighestOrderForState')
+            ->will($this->returnValue($getHighestOrderForStateValue));
+
+        $this->app['daoLocation'] = $daoLocation;
+
+        $this->setAttribute($domainLocation, 'app', $this->app);
+
+        $expectedReturnValue = 20;
+        $state = 'tx';
+
+        $this->assertEquals(
+            $expectedReturnValue,
+            $domainLocation->getOrderingForNewLocation($state),
+            'Expected return value of 20'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\Location::mapMultipleSchedulesToLocations
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
