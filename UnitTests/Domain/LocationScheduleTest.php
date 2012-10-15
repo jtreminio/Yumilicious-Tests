@@ -130,4 +130,64 @@ class LocationScheduleTest extends Base
             'LocationId did not match expected'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::update
+     */
+    public function updateReturnsFalseOnFailure()
+    {
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+
+        $daoLocationSchedule = $this->getDaoLocationSchedule();
+
+        $entityLocationSchedule = new Entity\LocationSchedule();
+
+        $updateResult = false;
+        $daoLocationSchedule->expects($this->once())
+            ->method('update')
+            ->with($entityLocationSchedule)
+            ->will($this->returnValue($updateResult));
+
+        $this->app['daoLocationSchedule'] = $daoLocationSchedule;
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $this->assertFalse(
+            $domainLocationSchedule->update($entityLocationSchedule),
+            'Expected ::update() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::update
+     */
+    public function updateReturnsEntity()
+    {
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+
+        $daoLocationSchedule = $this->getDaoLocationSchedule();
+
+        $entityLocationSchedule = new Entity\LocationSchedule();
+        $entityLocationSchedule->setLocationId(123);
+
+        $updateResult = true;
+        $daoLocationSchedule->expects($this->once())
+            ->method('update')
+            ->with($entityLocationSchedule)
+            ->will($this->returnValue($updateResult));
+
+        $this->app['daoLocationSchedule'] = $daoLocationSchedule;
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $result = $domainLocationSchedule->update($entityLocationSchedule);
+
+        $this->assertEquals(
+            $entityLocationSchedule->getLocationId(),
+            $result->getLocationId(),
+            'Entity locationIds do not match'
+        );
+    }
 }
