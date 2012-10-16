@@ -21,6 +21,15 @@ class LocationTest extends Base
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
+    protected function getDaoState()
+    {
+        return $this->getMockBuilder('\Yumilicious\Dao\State')
+            ->getMock();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
     protected function getDomainLocationSchedule()
     {
         return $this->getMockBuilder('\Yumilicious\Domain\LocationSchedule')
@@ -523,8 +532,7 @@ class LocationTest extends Base
     {
         $domainLocation = $this->app['domainLocation'];
 
-        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
-            ->getMock();
+        $daoState = $this->getDaoState();
 
         $locationOne = new Entity\Location();
         $locationTwo = new Entity\Location();
@@ -584,8 +592,7 @@ class LocationTest extends Base
         /** @var $domainLocation Domain\Location */
         $domainLocation = $this->app['domainLocation'];
 
-        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
-            ->getMock();
+        $daoState = $this->getDaoState();
 
         $getStatesValue = array('TX' => 'Texas');
         $daoState->expects($this->once())
@@ -613,8 +620,7 @@ class LocationTest extends Base
         /** @var $domainLocation Domain\Location */
         $domainLocation = $this->app['domainLocation'];
 
-        $daoState = $this->getMockBuilder('\Yumilicious\Dao\State')
-            ->getMock();
+        $daoState = $this->getDaoState();
 
         $getStatesValue = false;
         $daoState->expects($this->once())
