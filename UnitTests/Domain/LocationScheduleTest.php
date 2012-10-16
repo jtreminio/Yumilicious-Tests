@@ -190,4 +190,54 @@ class LocationScheduleTest extends Base
             'Entity locationIds do not match'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::updateFromArray
+     */
+    public function updateFromArrayThrowsExceptionOnFailure()
+    {
+        $this->setExpectedException(
+            'Yumilicious\Exception\Domain',
+            'locationId - This value should be 1 or more.<br />'
+        );
+
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $dataset = array('locationId' => 0);
+
+        $domainLocationSchedule->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\LocationSchedule::updateFromArray
+     */
+    public function updateFromArrayReturnsEntity()
+    {
+        /** @var $domainLocationSchedule Domain\LocationSchedule */
+        $domainLocationSchedule = $this->app['domainLocationSchedule'];
+        $daoLocationSchedule = $this->getDaoLocationSchedule();
+
+        $updateValue = true;
+        $daoLocationSchedule->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateValue));
+
+        $this->app['daoLocationSchedule'] = $daoLocationSchedule;
+        $this->setAttribute($domainLocationSchedule, 'app', $this->app);
+
+        $dataset = array('locationId' => 123);
+
+        $result = $domainLocationSchedule->updateFromArray($dataset);
+
+        $this->assertEquals(
+            $dataset['locationId'],
+            $result->getLocationId(),
+            'LocationIds do not match'
+        );
+    }
 }
