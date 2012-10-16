@@ -3,6 +3,9 @@
 namespace Yumilicious\UnitTests;
 
 use Yumilicious\UnitTests\Base;
+use Yumilicious\Domain;
+use Yumilicious\Entity;
+use Yumilicious\Validator;
 
 class DomainTest extends Base
 {
@@ -213,6 +216,85 @@ class DomainTest extends Base
         return array(
             array(1, 0),
             array(0, 1),
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain::buildTree
+     */
+    public function buildTreeReturnsExpected()
+    {
+        $domain = $this->getMockBuilder('\Yumilicious\Domain')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $entity1 = new Entity\FlavorDetail();
+        $entity2 = new Entity\FlavorDetail();
+        $entity3 = new Entity\FlavorDetail();
+        $entity4 = new Entity\FlavorDetail();
+        $entity5 = new Entity\FlavorDetail();
+        $entity6 = new Entity\FlavorDetail();
+
+        $entity1->setId(1);
+        $entity2->setId(2);
+        $entity3->setId(3);
+        $entity4->setId(4);
+        $entity5->setId(5);
+        $entity6->setId(6);
+
+        $entity1->setSlug('entity1');
+        $entity2->setSlug('entity2');
+        $entity3->setSlug('entity3');
+        $entity4->setSlug('entity4');
+        $entity5->setSlug('entity5');
+        $entity6->setSlug('entity6');
+
+        $entity3->setParentId(1);
+        $entity4->setParentId(2);
+        $entity5->setParentId(3);
+        $entity6->setParentId(2);
+
+        $elements = array(
+            $entity1,
+            $entity2,
+            $entity3,
+            $entity4,
+            $entity5,
+            $entity6,
+        );
+
+        $result = $this->invokeMethod(
+            $domain,
+            'buildTree',
+            array($elements)
+        );
+
+        // entity1
+        $children1 = $result[0]->getChildren();
+        // entity2
+        $children2 = $result[1]->getChildren();
+        // entity3
+        $children3 = $children1['entity3']->getChildren();
+
+        $this->assertEquals(
+            $entity1->getId(),
+            $result[0]->getId()
+        );
+
+        $this->assertEquals(
+            $entity2->getId(),
+            $result[1]->getId()
+        );
+
+        $this->assertEquals(
+            $entity3->getId(),
+            $children1['entity3']->getId()
+        );
+
+        $this->assertEquals(
+            $entity5->getId(),
+            $children3['entity5']->getId()
         );
     }
 }
