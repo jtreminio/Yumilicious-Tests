@@ -28,6 +28,14 @@ class LocationTest extends Base
     }
 
     /**
+     * @return Domain\Location
+     */
+    public function getDomainLocation()
+    {
+        return $this->app['domainLocation'];
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomainLocationSchedule()
@@ -60,9 +68,7 @@ class LocationTest extends Base
      */
     public function createReturnsEntityOnSuccess()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
+        $domainLocation = $this->getDomainLocation();
         $daoLocation    = $this->getDaoLocation();
         $entityLocation = $this->getEntityLocation();
 
@@ -76,7 +82,7 @@ class LocationTest extends Base
             ->method('create')
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['daoLocation'] = $daoLocation;
+        $this->app['daoLocation']    = $daoLocation;
         $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
@@ -105,10 +111,8 @@ class LocationTest extends Base
             "updatedBy - This value should not be blank.<br />"
         );
 
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $this->app['daoLocation'] = $daoLocation;
 
@@ -130,8 +134,7 @@ class LocationTest extends Base
      */
     public function createReturnsFalseOnFailedCreateCall()
     {
-        $domainLocation = $this->app['domainLocation'];
-
+        $domainLocation = $this->getDomainLocation();
         $daoLocation    = $this->getDaoLocation();
         $entityLocation = $this->getEntityLocation();
 
@@ -145,7 +148,7 @@ class LocationTest extends Base
             ->method('create')
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['daoLocation'] = $daoLocation;
+        $this->app['daoLocation']    = $daoLocation;
         $this->app['entityLocation'] = $entityLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
@@ -166,12 +169,10 @@ class LocationTest extends Base
      */
     public function getOneByIdReturnsResults()
     {
-        $domainLocation = $this->app['domainLocation'];
-
+        $domainLocation         = $this->getDomainLocation();
+        $daoLocation            = $this->getDaoLocation();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
         $entityLocationSchedule = $this->getEntityLocationSchedule();
-
-        $daoLocation            = $this->getDaoLocation();
 
         $id = 1;
         $getOneByIdResult = array(
@@ -190,8 +191,8 @@ class LocationTest extends Base
             ->with($id)
             ->will($this->returnValue($entityLocationSchedule));
 
+        $this->app['daoLocation']            = $daoLocation;
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-        $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -210,10 +211,8 @@ class LocationTest extends Base
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $id = 1;
         $getOneByIdResult = false;
@@ -238,10 +237,8 @@ class LocationTest extends Base
      */
     public function getAllReturnsFalseOnNoResult()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $getAllInactiveReturn = array();
         $daoLocation->expects($this->once())
@@ -265,10 +262,8 @@ class LocationTest extends Base
      */
     public function getAllReturnsFalseOnNoResultWithNoStatus()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $getAllReturn = array();
         $daoLocation->expects($this->once())
@@ -292,11 +287,12 @@ class LocationTest extends Base
      */
     public function getAllReturnsResults()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation            = $this->getDaoLocation();
-        $domainLocationSchedule = $this->getDomainLocationSchedule();
+        $domainLocation              = $this->getDomainLocation();
+        $daoLocation                 = $this->getDaoLocation();
+        $domainLocationSchedule      = $this->getDomainLocationSchedule();
+        $entityLocationScheduleOne   = new Entity\LocationSchedule();
+        $entityLocationScheduleTwo   = new Entity\LocationSchedule();
+        $entityLocationScheduleThree = new Entity\LocationSchedule();
 
         $getAllResult = array(
             array(
@@ -317,10 +313,6 @@ class LocationTest extends Base
             ->method('getAllActive')
             ->will($this->returnValue($getAllResult));
 
-        $entityLocationScheduleOne   = new Entity\LocationSchedule();
-        $entityLocationScheduleTwo   = new Entity\LocationSchedule();
-        $entityLocationScheduleThree = new Entity\LocationSchedule();
-
         $entityLocationScheduleOne->setLocationId($getAllResult[0]['id']);
         $entityLocationScheduleTwo->setLocationId($getAllResult[1]['id']);
         $entityLocationScheduleThree->setLocationId($getAllResult[2]['id']);
@@ -335,8 +327,8 @@ class LocationTest extends Base
             ->method('getMultipleSchedules')
             ->will($this->returnValue($multipleScheduleEntityArray));
 
+        $this->app['daoLocation']            = $daoLocation;
         $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-        $this->app['daoLocation'] = $daoLocation;
 
         $this->setAttribute($domainLocation, 'app', $this->app);
 
@@ -385,10 +377,8 @@ class LocationTest extends Base
      */
     public function updateReturnsFalseOnDaoUpdateFail()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $updateReturn = false;
         $daoLocation->expects($this->once())
@@ -413,10 +403,8 @@ class LocationTest extends Base
      */
     public function updateReturnsEntityOnSuccess()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation         = $this->getDomainLocation();
+        $daoLocation            = $this->getDaoLocation();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
 
         $updateReturn = true;
@@ -451,10 +439,8 @@ class LocationTest extends Base
      */
     public function updateFromArrayReturnsEntityOnSuccess()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation         = $this->getDomainLocation();
+        $daoLocation            = $this->getDaoLocation();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
 
         $updateValue = true;
@@ -506,8 +492,7 @@ class LocationTest extends Base
             'updatedBy - This value should not be blank.<br />'
         );
 
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
+        $domainLocation = $this->getDomainLocation();
 
         $locationDataset = array(
             'name' => 'location name',
@@ -530,13 +515,11 @@ class LocationTest extends Base
      */
     public function separateIntoStatesReturnsCorrectlyShapedArray()
     {
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoState = $this->getDaoState();
-
-        $locationOne = new Entity\Location();
-        $locationTwo = new Entity\Location();
-        $locationThree = new Entity\Location();
+        $domainLocation = $this->getDomainLocation();
+        $daoState       = $this->getDaoState();
+        $locationOne    = new Entity\Location();
+        $locationTwo    = new Entity\Location();
+        $locationThree  = new Entity\Location();
 
         $states = array(
             'AK' => 'Alaska',
@@ -589,10 +572,8 @@ class LocationTest extends Base
      */
     public function getStatesReturnsStates()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoState = $this->getDaoState();
+        $domainLocation = $this->getDomainLocation();
+        $daoState       = $this->getDaoState();
 
         $getStatesValue = array('TX' => 'Texas');
         $daoState->expects($this->once())
@@ -617,10 +598,8 @@ class LocationTest extends Base
      */
     public function getStatesReturnsFalseOnNoStates()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoState = $this->getDaoState();
+        $domainLocation = $this->getDomainLocation();
+        $daoState       = $this->getDaoState();
 
         $getStatesValue = false;
         $daoState->expects($this->once())
@@ -643,10 +622,8 @@ class LocationTest extends Base
      */
     public function getOrderingForNewLocationReturns10OnNoExistingNumber()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $getHighestOrderForStateValue = null;
         $daoLocation->expects($this->once())
@@ -673,10 +650,8 @@ class LocationTest extends Base
      */
     public function getOrderingForNewLocationReturnsExpectedValue()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $getHighestOrderForStateValue = array('ordering' => 10);
         $daoLocation->expects($this->once())
@@ -703,10 +678,8 @@ class LocationTest extends Base
      */
     public function deleteReturnsFalseOnLocationNotFound()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
-        $daoLocation = $this->getDaoLocation();
+        $domainLocation = $this->getDomainLocation();
+        $daoLocation    = $this->getDaoLocation();
 
         $deleteValue = false;
         $daoLocation->expects($this->once())
@@ -730,9 +703,7 @@ class LocationTest extends Base
      */
     public function deleteReturnsTrueOnDeletion()
     {
-        /** @var $domainLocation Domain\Location */
-        $domainLocation = $this->app['domainLocation'];
-
+        $domainLocation         = $this->getDomainLocation();
         $daoLocation            = $this->getDaoLocation();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
 
@@ -763,15 +734,13 @@ class LocationTest extends Base
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedules()
     {
-        $domainLocation = $this->app['domainLocation'];
-
-        $locationOne   = new Entity\Location();
-        $locationTwo   = new Entity\Location();
-        $locationThree = new Entity\Location();
-
-        $scheduleOne   = new Entity\LocationSchedule();
-        $scheduleTwo   = new Entity\LocationSchedule();
-        $scheduleThree = new Entity\LocationSchedule();
+        $domainLocation = $this->getDomainLocation();
+        $locationOne    = new Entity\Location();
+        $locationTwo    = new Entity\Location();
+        $locationThree  = new Entity\Location();
+        $scheduleOne    = new Entity\LocationSchedule();
+        $scheduleTwo    = new Entity\LocationSchedule();
+        $scheduleThree  = new Entity\LocationSchedule();
 
         $locationIdOne = 123;
         $locationOne->setId($locationIdOne);
@@ -848,21 +817,17 @@ class LocationTest extends Base
      */
     public function mapMultipleSchedulesToLocationsReturnsAllLocationsWithSchedulesWhenSchedulesDoNotExist()
     {
-        $domainLocation = $this->app['domainLocation'];
-
-        $locationOne   = $this->getEntityLocation();
-        $locationTwo   = $this->getEntityLocation();
-        $locationThree = $this->getEntityLocation();
-        $locationFour  = $this->getEntityLocation();
-        $locationFive  = $this->getEntityLocation();
-
-        $scheduleOne   = $this->getEntityLocationSchedule();
-        $scheduleTwo   = $this->getEntityLocationSchedule();
-        $scheduleThree = $this->getEntityLocationSchedule();
-
-        $missingScheduleOne = $this->getEntityLocationSchedule();
-        $missingScheduleTwo = $this->getEntityLocationSchedule();
-
+        $domainLocation         = $this->getDomainLocation();
+        $locationOne            = $this->getEntityLocation();
+        $locationTwo            = $this->getEntityLocation();
+        $locationThree          = $this->getEntityLocation();
+        $locationFour           = $this->getEntityLocation();
+        $locationFive           = $this->getEntityLocation();
+        $scheduleOne            = $this->getEntityLocationSchedule();
+        $scheduleTwo            = $this->getEntityLocationSchedule();
+        $scheduleThree          = $this->getEntityLocationSchedule();
+        $missingScheduleOne     = $this->getEntityLocationSchedule();
+        $missingScheduleTwo     = $this->getEntityLocationSchedule();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
 
         $locationIdOne = 123;
