@@ -32,6 +32,7 @@ class FlavorTypeTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\FlavorType::create
+     * @covers \Yumilicious\Domain\FlavorType::typeExists
      */
     public function createThrowsExceptionOnParentNotExist()
     {
@@ -59,6 +60,8 @@ class FlavorTypeTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\FlavorType::create
+     * @covers \Yumilicious\Domain\FlavorType::typeExists
+     * @covers \Yumilicious\Domain\FlavorType::nameExists
      */
     public function createThrowsExceptionOnNameExists()
     {
@@ -95,6 +98,8 @@ class FlavorTypeTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\FlavorType::create
+     * @covers \Yumilicious\Domain\FlavorType::typeExists
+     * @covers \Yumilicious\Domain\FlavorType::nameExists
      */
     public function createThrowsExceptionOnValidateFailure()
     {
@@ -138,22 +143,9 @@ class FlavorTypeTest extends Base
         $daoFlavorType    = $this->getDaoFlavorType();
 
         $dataset = array(
-            'parentId' => 123,
-            'name'     => 'test name',
+            'name'      => 'test name',
             'updatedBy' => 321,
         );
-
-        $getOneByIdReturn = true;
-        $daoFlavorType->expects($this->once())
-            ->method('getOneById')
-            ->with($dataset['parentId'])
-            ->will($this->returnValue($getOneByIdReturn));
-
-        $getOneByNameReturn = false;
-        $daoFlavorType->expects($this->once())
-            ->method('getOneByName')
-            ->with($dataset['name'])
-            ->will($this->returnValue($getOneByNameReturn));
 
         $createReturn = false;
         $daoFlavorType->expects($this->once())
@@ -171,6 +163,7 @@ class FlavorTypeTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\FlavorType::create
+     * @covers \Yumilicious\Domain\FlavorType::typeExists
      */
     public function createReturnsEntity()
     {
@@ -202,6 +195,7 @@ class FlavorTypeTest extends Base
 
         $this->setService('daoFlavorType', $daoFlavorType);
 
+        /** @var $result Entity\FlavorType */
         $result = $domainFlavorType->create($dataset);
 
         $this->assertEquals(
@@ -214,6 +208,205 @@ class FlavorTypeTest extends Base
             $dataset['name'],
             $result->getName(),
             'Expected entity getId to match'
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerGetAllReturnsFalseOnNoResults
+     * @covers \Yumilicious\Domain\FlavorType::getAll
+     */
+    public function getAllReturnsFalseOnNoResults($status, $getAllMethod)
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $getAll = array();
+        $daoFlavorType->expects($this->once())
+            ->method($getAllMethod)
+            ->will($this->returnValue($getAll));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $this->assertFalse(
+            $domainFlavorType->getAll($status),
+            'Expecting ::getAll() to return false'
+        );
+    }
+
+    /**
+     * Provider for getAllReturnsFalseOnNoResults
+     *
+     * @return array
+     */
+    public function providerGetAllReturnsFalseOnNoResults()
+    {
+        return array(
+            array('active', 'getAllActive'),
+            array('inactive', 'getAllInactive'),
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::getAll
+     */
+    public function getAllReturnsExpected()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $getAllReturn = array(
+            array('name' => 'result 1'),
+            array('name' => 'result 2'),
+            array('name' => 'result 3'),
+        );
+        $daoFlavorType->expects($this->once())
+            ->method('getAll')
+            ->will($this->returnValue($getAllReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $status = 'fooStatus';
+
+        $result = $domainFlavorType->getAll($status);
+
+        $this->assertEquals(
+            $getAllReturn[0]['name'],
+            $result[0]->getName(),
+            'getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $getAllReturn[1]['name'],
+            $result[1]->getName(),
+            'getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $getAllReturn[2]['name'],
+            $result[2]->getName(),
+            'getName() does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::getAllFlat
+     * @covers \Yumilicious\Domain\FlavorType::flatten
+     *
+     * Expected result should look similar to
+            $elements = array(
+                array(
+                    'id'   => 1,
+                    'name' => 'element 1',
+                ),
+                    array(
+                        'id'       => 3,
+                        'name'     => 'element 3',
+                        'parentId' => 1,
+                    ),
+                        array(
+                            'id'       => 5,
+                            'name'     => 'element 5',
+                            'parentId' => 3,
+                        ),
+                array(
+                    'id'   => 2,
+                    'name' => 'element 2',
+                ),
+                    array(
+                        'id'       => 4,
+                        'name'     => 'element 4',
+                        'parentId' => 2,
+                    ),
+                    array(
+                        'id'       => 6,
+                        'name'     => 'element 6',
+                        'parentId' => 2,
+                    ),
+            );
+     */
+    public function getAllFlatReturnsOrderedArray()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $elements = array(
+            array(
+                'id'   => 1,
+                'name' => 'element 1',
+            ),
+            array(
+                'id'   => 2,
+                'name' => 'element 2',
+            ),
+            array(
+                'id'       => 3,
+                'name'     => 'element 3',
+                'parentId' => 1,
+            ),
+            array(
+                'id'       => 4,
+                'name'     => 'element 4',
+                'parentId' => 2,
+            ),
+            array(
+                'id'       => 5,
+                'name'     => 'element 5',
+                'parentId' => 3,
+            ),
+            array(
+                'id'       => 6,
+                'name'     => 'element 6',
+                'parentId' => 2,
+            ),
+        );
+
+        $daoFlavorType->expects($this->once())
+            ->method('getAllActive')
+            ->will($this->returnValue($elements));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $status = 'active';
+
+        $result = $domainFlavorType->getAllFlat($status);
+
+        $this->assertEquals(
+            $elements[0]['name'],
+            $result[0]->getName(),
+            'First element did not match expected'
+        );
+
+        $this->assertContains(
+            $elements[2]['name'],
+            $result[0]->getChildren()[3]->getName(),
+            'First element did not contain expected child'
+        );
+
+        $this->assertContains(
+            $elements[4]['name'],
+            $result[0]->getChildren()[3]->getChildren()[5]->getName(),
+            "First element's child did not contain expected child"
+        );
+
+        $this->assertEquals(
+            $elements[1]['name'],
+            $result[3]->getName(),
+            'Second element did not match expected'
+        );
+
+        $this->assertContains(
+            $elements[3]['name'],
+            $result[3]->getChildren()[4]->getName(),
+            'Second element did not contain expected child'
+        );
+
+        $this->assertContains(
+            $elements[5]['name'],
+            $result[3]->getChildren()[6]->getName(),
+            'Second element did not contain expected child'
         );
     }
 }
