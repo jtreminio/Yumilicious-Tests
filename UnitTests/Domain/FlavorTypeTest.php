@@ -19,11 +19,14 @@ class FlavorTypeTest extends Base
     }
 
     /**
-     * @return Domain\FlavorType
+     * @return Domain\FlavorType|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomainFlavorType()
     {
-        return $this->app['domainFlavorType'];
+        return $this->getMockBuilder('\Yumilicious\Domain\FlavorType')
+            ->setConstructorArgs(array($this->app))
+            ->setMethods(null)
+            ->getMock();
     }
 
     /**
@@ -48,7 +51,7 @@ class FlavorTypeTest extends Base
             ->with($dataset['parentId'])
             ->will($this->returnValue($getOneByIdReturn));
 
-        $this->app['daoFlavorType'] = $daoFlavorType;
+        $this->setService('daoFlavorType', $daoFlavorType);
 
         $domainFlavorType->create($dataset);
     }

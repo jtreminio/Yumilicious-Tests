@@ -2,6 +2,8 @@
 
 namespace Yumilicious\UnitTests;
 
+use Yumilicious\Domain;
+
 class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
 {
     /** @var \Silex\Application */
@@ -29,5 +31,32 @@ class Base extends \jtreminio\TestExtensions\TestExtensionsSilex
         require __DIR__ . '/../../../src/controllers.php';
 
         return $this->app;
+    }
+
+    /**
+     * Sets up the application object to be used in our domain classes
+     *
+     * @param \PHPUnit_Framework_MockObject_MockObject|Domain $object
+     * @return self
+     */
+    protected final function setApp($object)
+    {
+        $this->setAttribute($object, 'app', $this->app);
+
+        return $this;
+    }
+
+    /**
+     * Override service container
+     *
+     * @param string $name
+     * @param object $service
+     * @return self
+     */
+    protected final function setService($name, $service)
+    {
+        $this->app[$name] = $service;
+
+        return $this;
     }
 }

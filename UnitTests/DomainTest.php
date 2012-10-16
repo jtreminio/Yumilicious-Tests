@@ -10,19 +10,33 @@ use Yumilicious\Validator;
 class DomainTest extends Base
 {
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDomain()
+    {
+        return $this->getMockBuilder('\Yumilicious\Domain')
+            ->setConstructorArgs(array($this->app))
+            ->getMockForAbstractClass();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEntity()
+    {
+        return $this->getMockBuilder('\Yumilicious\Entity')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
      * @test
      * @covers \Yumilicious\Domain::validate
      */
     public function validateReturnsTrueOnPass()
     {
-        $domain = $this->getMockBuilder('\Yumilicious\Domain')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-
-        $entity = $this->getMockBuilder('\Yumilicious\Entity')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $domain = $this->getDomain();
+        $entity = $this->getEntity();
 
         $expectedErrors = array();
 
@@ -57,14 +71,8 @@ class DomainTest extends Base
             $expectedExceptionMessage
         );
 
-        $domain = $this->getMockBuilder('\Yumilicious\Domain')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-
-        $entity = $this->getMockBuilder('\Yumilicious\Entity')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $domain = $this->getDomain();
+        $entity = $this->getEntity();
 
         $errorOne = $this->getMockBuilder('\stdClass')
             ->disableOriginalConstructor()
@@ -120,14 +128,8 @@ class DomainTest extends Base
      */
     public function hydrateMultipleReturnsArrayOfEntities()
     {
-        $domain = $this->getMockBuilder('\Yumilicious\Domain')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $entity = $this->getMockBuilder('\Yumilicious\Entity')
-            ->disableOriginalConstructor()
-            ->setMethods(array('hydrate'))
-            ->getMockForAbstractClass();
+        $domain = $this->getDomain();
+        $entity = $this->getEntity();
 
         $resultsArray = array(
             array('Result one'),
@@ -154,9 +156,7 @@ class DomainTest extends Base
             ->will($this->returnValue($entityThreeHydrateResult));
 
         $entityName = 'entityLocation';
-        $this->app[$entityName] = $entity;
-
-        $this->setAttribute($domain, 'app', $this->app);
+        $this->setService($entityName, $entity);
 
         $expectedEntityResults = array($entityOneHydrateResult, $entityTwoHydrateResult, $entityThreeHydrateResult);
 
@@ -183,10 +183,10 @@ class DomainTest extends Base
         $expectedIsActiveResult
     ){
         $entityFlavor = new \Yumilicious\Entity\Flavor();
-        $entityFlavor->setIsActive($isActiveStatus);
-
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+        $daoFlavor    = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
             ->getMock();
+
+        $entityFlavor->setIsActive($isActiveStatus);
 
         $updateReturn = true;
         $daoFlavor->expects($this->once())
@@ -225,9 +225,7 @@ class DomainTest extends Base
      */
     public function buildTreeReturnsExpected()
     {
-        $domain = $this->getMockBuilder('\Yumilicious\Domain')
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $domain = $this->getDomain();
 
         $entity1 = new Entity\FlavorDetail();
         $entity2 = new Entity\FlavorDetail();

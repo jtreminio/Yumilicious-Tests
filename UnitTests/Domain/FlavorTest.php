@@ -19,11 +19,14 @@ class FlavorTest extends Base
     }
 
     /**
-     * @return Domain\Flavor
+     * @return Domain\Flavor|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomainFlavor()
     {
-        return $this->app['domainFlavor'];
+        return $this->getMockBuilder('\Yumilicious\Domain\Flavor')
+            ->setConstructorArgs(array($this->app))
+            ->setMethods(null)
+            ->getMock();
     }
 
     /**
@@ -124,7 +127,7 @@ class FlavorTest extends Base
             ->method('getBeverages')
             ->will($this->returnValue($beverages));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $result = $domainFlavor->getFlavorByName($searchString);
 
@@ -256,7 +259,7 @@ class FlavorTest extends Base
             ->method('getBeverages')
             ->will($this->returnValue($beverages));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $domainFlavor->getFlavorByName($invalidFlavorName);
     }
@@ -398,7 +401,7 @@ class FlavorTest extends Base
             ->method('getYogurtFlavors')
             ->will($this->returnValue($yogurtFlavors));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $result = $domainFlavor->getSortedYogurtFlavors();
 
@@ -453,8 +456,8 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        $this->app['daoFlavor']    = $daoFlavor;
-        $this->app['entityFlavor'] = $entityFlavor;
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('entityFlavor', $entityFlavor);
 
         $this->assertFalse(
             $domainFlavor->create($dataset),
@@ -486,9 +489,10 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        $this->app['daoFlavor']    = $daoFlavor;
-        $this->app['entityFlavor'] = $entityFlavor;
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('entityFlavor', $entityFlavor);
 
+        /** @var $result Entity\Flavor */
         $result = $domainFlavor->create($dataset);
 
         $this->assertEquals(
@@ -513,7 +517,7 @@ class FlavorTest extends Base
             ->method('update')
             ->will($this->returnValue($updateReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertFalse(
             $domainFlavor->update($entityFlavor),
@@ -539,8 +543,9 @@ class FlavorTest extends Base
             ->method('update')
             ->will($this->returnValue($updateReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
+        /** @var $result Entity\Flavor */
         $result = $domainFlavor->update($entityFlavor);
 
         $this->assertEquals(
@@ -590,11 +595,12 @@ class FlavorTest extends Base
             ->method('update')
             ->will($this->returnValue($updateReturn));
 
-        $this->app['daoFlavor']    = $daoFlavor;
-        $this->app['entityFlavor'] = $entityFlavor;
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('entityFlavor', $entityFlavor);
 
         $dataset = array('name' => 'test name');
 
+        /** @var $result Entity\Flavor */
         $result = $domainFlavor->updateFromArray($dataset);
 
         $this->assertEquals(
@@ -618,7 +624,7 @@ class FlavorTest extends Base
             ->method('getOneById')
             ->will($this->returnValue($getOneByIdReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $id = 123;
         $this->assertFalse(
@@ -641,9 +647,10 @@ class FlavorTest extends Base
             ->method('getOneById')
             ->will($this->returnValue($getOneByIdReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $id = 123;
+        /** @var $result Entity\Flavor */
         $result = $domainFlavor->getOneById($id);
 
         $this->assertEquals(
@@ -667,7 +674,7 @@ class FlavorTest extends Base
             ->method('getAllActive')
             ->will($this->returnValue($getAllActiveReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $status = 'active';
 
@@ -691,7 +698,7 @@ class FlavorTest extends Base
             ->method('getAllInactive')
             ->will($this->returnValue($getAllActiveReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $status = 'inactive';
 
@@ -718,7 +725,7 @@ class FlavorTest extends Base
             ->method('getAll')
             ->will($this->returnValue($getAllActiveReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $status = 'fauxStatus';
 
@@ -751,7 +758,7 @@ class FlavorTest extends Base
             ->method('getYogurtFlavors')
             ->will($this->returnValue($getYogurtFlavorsReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getYogurtFlavorsReturn,
@@ -785,7 +792,7 @@ class FlavorTest extends Base
             ->method('getYogurtFlavors')
             ->will($this->returnValue($yogurtFlavors));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $expectedResult,
@@ -808,7 +815,7 @@ class FlavorTest extends Base
             ->method('getBeverages')
             ->will($this->returnValue($getBeveragesFlavorsReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getBeveragesFlavorsReturn,
@@ -831,7 +838,7 @@ class FlavorTest extends Base
             ->method('getFreshFruitToppings')
             ->will($this->returnValue($getFreshFruitToppingsReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getFreshFruitToppingsReturn,
@@ -854,7 +861,7 @@ class FlavorTest extends Base
             ->method('getDryToppings')
             ->will($this->returnValue($getDryToppingsReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getDryToppingsReturn,
@@ -877,7 +884,7 @@ class FlavorTest extends Base
             ->method('getLightSyrupToppings')
             ->will($this->returnValue($getLightSyrupToppingsReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getLightSyrupToppingsReturn,
@@ -900,7 +907,7 @@ class FlavorTest extends Base
             ->method('getExtraFlavorKeys')
             ->will($this->returnValue($getExtraFlavorKeysReturn));
 
-        $this->app['daoFlavor'] = $daoFlavor;
+        $this->setService('daoFlavor', $daoFlavor);
 
         $this->assertEquals(
             $getExtraFlavorKeysReturn,

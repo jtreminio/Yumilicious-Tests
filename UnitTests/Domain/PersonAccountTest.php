@@ -15,7 +15,7 @@ class PersonAccountTest extends Base
     protected function getDomainPersonAccount()
     {
         return $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
+            ->setConstructorArgs(array($this->app))
             ->setMethods(array('password_hash', 'password_verify'))
             ->getMock();
     }
@@ -59,15 +59,13 @@ class PersonAccountTest extends Base
             ->method('create')
             ->will($this->returnValue($createReturn));
 
-        $this->app['daoPersonAccount']    = $daoPersonAccount;
-        $this->app['entityPersonAccount'] = $entityPersonAccount;
+        $this->setService('daoPersonAccount', $daoPersonAccount)
+             ->setService('entityPersonAccount', $entityPersonAccount);
 
         $dataSet = array(
             'password'       => 'blah123',
             'passwordVerify' => 'blah123',
         );
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $this->assertFalse(
             $domainPersonAccount->create($dataSet),
@@ -125,8 +123,6 @@ class PersonAccountTest extends Base
             ->method('password_hash')
             ->will($this->returnValue($dataSet['password']));
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $domainPersonAccount->create($dataSet);
     }
 
@@ -159,9 +155,7 @@ class PersonAccountTest extends Base
             ->method('password_hash')
             ->will($this->returnValue($hashedPassword));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         /** @var $entity Entity\PersonAccount */
         $entity = $domainPersonAccount->create($dataSet);
@@ -202,9 +196,7 @@ class PersonAccountTest extends Base
             ->method('update')
             ->will($this->returnValue($updateValue));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         $this->assertFalse(
             $domainPersonAccount->update($entityPersonAccount, true),
@@ -231,9 +223,7 @@ class PersonAccountTest extends Base
             ->method('update')
             ->will($this->returnValue($updateValue));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         /** @var $domainPersonAccount Domain\PersonAccount */
         $result = $domainPersonAccount->update($entityPersonAccount, true);
@@ -308,8 +298,6 @@ class PersonAccountTest extends Base
             ->method('password_hash')
             ->will($this->returnValue($dataset['password']));
 
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
-
         $domainPersonAccount->updateFromArray($dataset);
     }
 
@@ -339,9 +327,7 @@ class PersonAccountTest extends Base
             ->method('password_hash')
             ->will($this->returnValue($dataset['password']));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         /** @var $result Entity\PersonAccount */
         $result = $domainPersonAccount->updateFromArray($dataset);
@@ -367,9 +353,7 @@ class PersonAccountTest extends Base
             ->method('getAll')
             ->will($this->returnValue($getAllValue));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         $this->assertFalse(
             $domainPersonAccount->getAll(),
@@ -394,9 +378,7 @@ class PersonAccountTest extends Base
             ->method('getAll')
             ->will($this->returnValue($getAllValue));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         $result = $domainPersonAccount->getAll();
 
@@ -430,9 +412,7 @@ class PersonAccountTest extends Base
             ->with($id)
             ->will($this->returnValue($getOneByIdValue));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         $this->assertFalse(
             $domainPersonAccount->getOneById($id),
@@ -462,9 +442,7 @@ class PersonAccountTest extends Base
             ->with($personId)
             ->will($this->returnValue($account));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         /** @var $result Entity\PersonAccount */
         $result = $domainPersonAccount->getOneById($personId);
@@ -505,10 +483,8 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->app['daoPersonAccount']    = $daoPersonAccount;
-        $this->app['entityPersonAccount'] = $entityPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount)
+             ->setService('entityPersonAccount', $entityPersonAccount);
 
         $password = 'foobar';
 
@@ -547,10 +523,8 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->app['daoPersonAccount']    = $daoPersonAccount;
-        $this->app['entityPersonAccount'] = $entityPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount)
+             ->setService('entityPersonAccount', $entityPersonAccount);
 
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
@@ -585,9 +559,7 @@ class PersonAccountTest extends Base
             ->with($password, $expectedPersonAccount['password'])
             ->will($this->returnValue(true));
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
-
-        $this->setAttribute($domainPersonAccount, 'app', $this->app);
+        $this->setService('daoPersonAccount', $daoPersonAccount);
 
         /** @var $domainPersonAccount Domain\PersonAccount */
         $result = $domainPersonAccount->getPersonByEmailAndPassword($email, $password);

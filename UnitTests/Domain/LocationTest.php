@@ -28,11 +28,14 @@ class LocationTest extends Base
     }
 
     /**
-     * @return Domain\Location
+     * @return Domain\Location|\PHPUnit_Framework_MockObject_MockObject
      */
     public function getDomainLocation()
     {
-        return $this->app['domainLocation'];
+        return $this->getMockBuilder('\Yumilicious\Domain\Location')
+            ->setConstructorArgs(array($this->app))
+            ->setMethods(null)
+            ->getMock();
     }
 
     /**
@@ -82,15 +85,14 @@ class LocationTest extends Base
             ->method('create')
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['daoLocation']    = $daoLocation;
-        $this->app['entityLocation'] = $entityLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('entityLocation', $entityLocation);
 
         $dataSet = array(
             'name' => 'test name',
         );
 
+        /** @var $result Entity\Location */
         $result = $domainLocation->create($dataSet);
 
         $this->assertEquals(
@@ -114,9 +116,7 @@ class LocationTest extends Base
         $domainLocation = $this->getDomainLocation();
         $daoLocation    = $this->getDaoLocation();
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $dataSet = array(
             'name'    => 'Test Name',
@@ -148,10 +148,8 @@ class LocationTest extends Base
             ->method('create')
             ->will($this->returnValue($lastInsertId));
 
-        $this->app['daoLocation']    = $daoLocation;
-        $this->app['entityLocation'] = $entityLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('entityLocation', $entityLocation);
 
         $dataSet = array(
             'name' => 'test name',
@@ -191,10 +189,8 @@ class LocationTest extends Base
             ->with($id)
             ->will($this->returnValue($entityLocationSchedule));
 
-        $this->app['daoLocation']            = $daoLocation;
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $result = $domainLocation->getOneById($id);
 
@@ -221,9 +217,7 @@ class LocationTest extends Base
             ->with($id)
             ->will($this->returnValue($getOneByIdResult));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $this->assertFalse(
             $domainLocation->getOneById($id),
@@ -245,9 +239,7 @@ class LocationTest extends Base
             ->method('getAllInactive')
             ->will($this->returnValue($getAllInactiveReturn));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $status = 'inactive';
         $this->assertFalse(
@@ -270,9 +262,7 @@ class LocationTest extends Base
             ->method('getAll')
             ->will($this->returnValue($getAllReturn));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $status = 'fubar';
         $this->assertFalse(
@@ -327,10 +317,8 @@ class LocationTest extends Base
             ->method('getMultipleSchedules')
             ->will($this->returnValue($multipleScheduleEntityArray));
 
-        $this->app['daoLocation']            = $daoLocation;
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $result = $domainLocation->getAll('active');
 
@@ -379,17 +367,14 @@ class LocationTest extends Base
     {
         $domainLocation = $this->getDomainLocation();
         $daoLocation    = $this->getDaoLocation();
+        $entity         = new Entity\Location();
 
         $updateReturn = false;
         $daoLocation->expects($this->once())
             ->method('update')
             ->will($this->returnValue($updateReturn));
 
-        $entity = new Entity\Location();
-
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $this->assertFalse(
             $domainLocation->update($entity),
@@ -406,6 +391,7 @@ class LocationTest extends Base
         $domainLocation         = $this->getDomainLocation();
         $daoLocation            = $this->getDaoLocation();
         $domainLocationSchedule = $this->getDomainLocationSchedule();
+        $entity                 = new Entity\Location();
 
         $updateReturn = true;
         $daoLocation->expects($this->once())
@@ -415,14 +401,11 @@ class LocationTest extends Base
         $domainLocationSchedule->expects($this->once())
             ->method('update');
 
-        $entity = new Entity\Location();
         $entity->setSchedule(new Entity\LocationSchedule());
         $entity->setName('foo test');
 
-        $this->app['daoLocation']            = $daoLocation;
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $result = $domainLocation->update($entity);
 
@@ -461,10 +444,8 @@ class LocationTest extends Base
             'locationId' => 123,
         );
 
-        $this->app['daoLocation']            = $daoLocation;
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $result = $domainLocation->updateFromArray($locationDataset, $scheduleDataset);
 
@@ -503,8 +484,6 @@ class LocationTest extends Base
         );
 
         $scheduleDataset = array();
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $result = $domainLocation->updateFromArray($locationDataset, $scheduleDataset);
     }
@@ -547,9 +526,7 @@ class LocationTest extends Base
 
         $arrayOfLocations = array($locationOne, $locationTwo, $locationThree);
 
-        $this->app['daoState'] = $daoState;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoState', $daoState);
 
         $results = $domainLocation->separateIntoStates($arrayOfLocations);
 
@@ -580,9 +557,7 @@ class LocationTest extends Base
             ->method('getStates')
             ->will($this->returnValue($getStatesValue));
 
-        $this->app['daoState'] = $daoState;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoState', $daoState);
 
         $result = $domainLocation->getStates();
 
@@ -606,9 +581,7 @@ class LocationTest extends Base
             ->method('getStates')
             ->will($this->returnValue($getStatesValue));
 
-        $this->app['daoState'] = $daoState;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoState', $daoState);
 
         $this->assertFalse(
             $domainLocation->getStates(),
@@ -630,9 +603,7 @@ class LocationTest extends Base
             ->method('getHighestOrderForState')
             ->will($this->returnValue($getHighestOrderForStateValue));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $expectedReturnValue = 10;
         $state = 'tx';
@@ -658,9 +629,7 @@ class LocationTest extends Base
             ->method('getHighestOrderForState')
             ->will($this->returnValue($getHighestOrderForStateValue));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $expectedReturnValue = 20;
         $state = 'tx';
@@ -686,9 +655,7 @@ class LocationTest extends Base
             ->method('delete')
             ->will($this->returnValue($deleteValue));
 
-        $this->app['daoLocation'] = $daoLocation;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation);
 
         $locationId = 123;
         $this->assertFalse(
@@ -716,10 +683,8 @@ class LocationTest extends Base
             ->method('delete')
             ->will($this->returnValue($deleteValue));
 
-        $this->app['daoLocation']            = $daoLocation;
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('daoLocation', $daoLocation)
+             ->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $locationId = 123;
         $this->assertTrue(
@@ -765,8 +730,6 @@ class LocationTest extends Base
             $scheduleTwo,
             $scheduleThree,
         );
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
 
         $result = $this->invokeMethod(
             $domainLocation,
@@ -879,9 +842,7 @@ class LocationTest extends Base
             $scheduleThree,
         );
 
-        $this->app['domainLocationSchedule'] = $domainLocationSchedule;
-
-        $this->setAttribute($domainLocation, 'app', $this->app);
+        $this->setService('domainLocationSchedule', $domainLocationSchedule);
 
         $result = $this->invokeMethod(
             $domainLocation,
