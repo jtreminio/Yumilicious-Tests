@@ -195,7 +195,7 @@ class DomainTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->toggleActivation($entityFlavor);
