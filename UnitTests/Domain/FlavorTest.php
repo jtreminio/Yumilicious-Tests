@@ -19,6 +19,14 @@ class FlavorTest extends Base
     }
 
     /**
+     * @return Domain\Flavor
+     */
+    protected function getDomainFlavor()
+    {
+        return $this->app['domainFlavor'];
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
     protected function getEntityFlavor()
@@ -117,8 +125,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->getFlavorByName($searchString);
 
@@ -251,8 +258,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $domainFlavor->getFlavorByName($invalidFlavorName);
     }
@@ -395,8 +401,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->getSortedYogurtFlavors();
 
@@ -422,8 +427,7 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $domainFlavor->create($dataset);
     }
@@ -435,8 +439,7 @@ class FlavorTest extends Base
     public function createReturnsFalseOnDaoCreateFailed()
     {
         $entityFlavor = $this->getEntityFlavor();
-
-        $daoFlavor = $this->getDaoFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -455,8 +458,7 @@ class FlavorTest extends Base
         $this->app['entityFlavor'] = $entityFlavor;
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertFalse(
             $domainFlavor->create($dataset),
@@ -471,8 +473,7 @@ class FlavorTest extends Base
     public function createReturnsEntityOnSuccess()
     {
         $entityFlavor = $this->getEntityFlavor();
-
-        $daoFlavor = $this->getDaoFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -491,8 +492,7 @@ class FlavorTest extends Base
         $this->app['entityFlavor'] = $entityFlavor;
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->create($dataset);
 
@@ -510,8 +510,7 @@ class FlavorTest extends Base
     public function updateReturnsFalseOnFailure()
     {
         $entityFlavor = new Entity\Flavor();
-
-        $daoFlavor = $this->getDaoFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
 
         $updateReturn = false;
         $daoFlavor->expects($this->once())
@@ -520,8 +519,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertFalse(
             $domainFlavor->update($entityFlavor),
@@ -536,8 +534,7 @@ class FlavorTest extends Base
     public function updateReturnsEntityOnSuccess()
     {
         $entityFlavor = new Entity\Flavor();
-
-        $daoFlavor = $this->getDaoFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
 
         $entityName = 'test name';
         $entityFlavor->setName($entityName);
@@ -549,8 +546,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->update($entityFlavor);
 
@@ -576,8 +572,7 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $domainFlavor->updateFromArray($dataset);
     }
@@ -589,8 +584,7 @@ class FlavorTest extends Base
     public function updateFromArrayReturnsEntityOnSuccess()
     {
         $entityFlavor = $this->getEntityFlavor();
-
-        $daoFlavor = $this->getDaoFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -607,8 +601,7 @@ class FlavorTest extends Base
 
         $dataset = array('name' => 'test name');
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->updateFromArray($dataset);
 
@@ -634,8 +627,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $id = 123;
         $this->assertFalse(
@@ -659,8 +651,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $id = 123;
         $result = $domainFlavor->getOneById($id);
@@ -689,8 +680,7 @@ class FlavorTest extends Base
 
         $status = 'active';
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertFalse(
             $domainFlavor->getAll($status),
@@ -715,8 +705,7 @@ class FlavorTest extends Base
 
         $status = 'inactive';
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertFalse(
             $domainFlavor->getAll($status),
@@ -744,8 +733,7 @@ class FlavorTest extends Base
 
         $status = 'fauxStatus';
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $result = $domainFlavor->getAll($status);
 
@@ -777,8 +765,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getYogurtFlavorsReturn,
@@ -813,8 +800,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $expectedResult,
@@ -838,8 +824,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getBeveragesFlavorsReturn,
@@ -863,8 +848,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getFreshFruitToppingsReturn,
@@ -888,8 +872,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getDryToppingsReturn,
@@ -913,8 +896,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getLightSyrupToppingsReturn,
@@ -938,8 +920,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Domain\Flavor */
-        $domainFlavor = $this->app['domainFlavor'];
+        $domainFlavor = $this->getDomainFlavor();
 
         $this->assertEquals(
             $getExtraFlavorKeysReturn,
