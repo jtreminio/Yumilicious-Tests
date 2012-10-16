@@ -219,4 +219,48 @@ class EntityTest extends Base
             ),
         );
     }
+
+    /**
+     * @test
+     * @dataProvider providerHandleZeroValueDatesReturnsExpected
+     */
+    public function handleZeroValueDatesReturnsExpected(
+        $dateString,
+        $expectedResponse
+    ){
+        $entity = $this->getMockBuilder('\Yumilicious\Entity')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $result = $this->invokeMethod(
+            $entity,
+            'handleZeroValueDates',
+            array($dateString)
+        );
+
+        $this->assertEquals(
+            $expectedResponse,
+            $result,
+            'Result does not match expected'
+        );
+    }
+
+    /**
+     * Provider for handleZeroValueDatesReturnsExpected()
+     *
+     * @return array
+     */
+    public function providerHandleZeroValueDatesReturnsExpected()
+    {
+        return array(
+            array(
+                '0000-00-00 00:00:00',
+                null,
+            ),
+            array(
+                '1995-00-00 00:00:00',
+                '1995-00-00 00:00:00',
+            ),
+        );
+    }
 }
