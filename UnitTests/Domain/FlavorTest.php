@@ -3,10 +3,31 @@
 namespace Yumilicious\UnitTests\Domain;
 
 use Yumilicious\UnitTests\Base;
-use Yumilicious\Domain\Flavor;
+use Yumilicious\Domain;
+use Yumilicious\Entity;
+use Yumilicious\Validator;
 
 class FlavorTest extends Base
 {
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDaoFlavor()
+    {
+        return $this->getMockBuilder('\Yumilicious\Dao\Flavor')
+            ->getMock();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getEntityFlavor()
+    {
+        return $this->getMockBuilder('\Yumilicious\Entity\Flavor')
+            ->setMethods(array('validate'))
+            ->getMock();
+    }
+
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getFlavorByName
@@ -17,9 +38,7 @@ class FlavorTest extends Base
         $expectedResult
     )
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $yogurtFlavors = array(
             array(
@@ -98,7 +117,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->getFlavorByName($searchString);
@@ -176,9 +195,7 @@ class FlavorTest extends Base
             "Flavor name {$invalidFlavorName} not found"
         );
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $yogurtFlavors = array(
             array(
@@ -234,7 +251,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $domainFlavor->getFlavorByName($invalidFlavorName);
@@ -246,9 +263,7 @@ class FlavorTest extends Base
      */
     public function getSortedYogurtFlavorsReturnsAlphabetizedList()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $yogurtFlavors = array(
             array(
@@ -380,7 +395,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->getSortedYogurtFlavors();
@@ -407,7 +422,7 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $domainFlavor->create($dataset);
@@ -419,11 +434,9 @@ class FlavorTest extends Base
      */
     public function createReturnsFalseOnDaoCreateFailed()
     {
-        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
-            ->getMock();
+        $entityFlavor = $this->getEntityFlavor();
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -442,7 +455,7 @@ class FlavorTest extends Base
         $this->app['entityFlavor'] = $entityFlavor;
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertFalse(
@@ -457,12 +470,9 @@ class FlavorTest extends Base
      */
     public function createReturnsEntityOnSuccess()
     {
-        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
-            ->setMethods(array('validate'))
-            ->getMock();
+        $entityFlavor = $this->getEntityFlavor();
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -481,7 +491,7 @@ class FlavorTest extends Base
         $this->app['entityFlavor'] = $entityFlavor;
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->create($dataset);
@@ -499,11 +509,9 @@ class FlavorTest extends Base
      */
     public function updateReturnsFalseOnFailure()
     {
-        /** @var $entityFlavor \Yumilicious\Entity\Flavor */
-        $entityFlavor = new \Yumilicious\Entity\Flavor();
+        $entityFlavor = new Entity\Flavor();
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $updateReturn = false;
         $daoFlavor->expects($this->once())
@@ -512,7 +520,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertFalse(
@@ -527,11 +535,9 @@ class FlavorTest extends Base
      */
     public function updateReturnsEntityOnSuccess()
     {
-        /** @var $entityFlavor \Yumilicious\Entity\Flavor */
-        $entityFlavor = new \Yumilicious\Entity\Flavor();
+        $entityFlavor = new Entity\Flavor();
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $entityName = 'test name';
         $entityFlavor->setName($entityName);
@@ -543,7 +549,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->update($entityFlavor);
@@ -570,7 +576,7 @@ class FlavorTest extends Base
             'name' => 'test name',
         );
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $domainFlavor->updateFromArray($dataset);
@@ -582,12 +588,9 @@ class FlavorTest extends Base
      */
     public function updateFromArrayReturnsEntityOnSuccess()
     {
-        $entityFlavor = $this->getMockBuilder('\Yumilicious\Entity\Flavor')
-            ->setMethods(array('validate'))
-            ->getMock();
+        $entityFlavor = $this->getEntityFlavor();
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -604,7 +607,7 @@ class FlavorTest extends Base
 
         $dataset = array('name' => 'test name');
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->updateFromArray($dataset);
@@ -622,8 +625,7 @@ class FlavorTest extends Base
      */
     public function getOneByIdReturnsFalseOnNotRecordFound()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getOneByIdReturn = array();
         $daoFlavor->expects($this->once())
@@ -632,7 +634,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $id = 123;
@@ -648,8 +650,7 @@ class FlavorTest extends Base
      */
     public function getOneByIdEntityOnSuccess()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getOneByIdReturn = array('name' => 'test name');
         $daoFlavor->expects($this->once())
@@ -658,7 +659,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $id = 123;
@@ -677,8 +678,7 @@ class FlavorTest extends Base
      */
     public function getAllReturnsFalseOnNoActiveResults()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getAllActiveReturn = array();
         $daoFlavor->expects($this->once())
@@ -689,7 +689,7 @@ class FlavorTest extends Base
 
         $status = 'active';
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertFalse(
@@ -704,8 +704,7 @@ class FlavorTest extends Base
      */
     public function getAllReturnsFalseOnNoInactiveResults()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getAllActiveReturn = array();
         $daoFlavor->expects($this->once())
@@ -716,7 +715,7 @@ class FlavorTest extends Base
 
         $status = 'inactive';
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertFalse(
@@ -731,8 +730,7 @@ class FlavorTest extends Base
      */
     public function getAllReturnsEntityOnSuccess()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getAllActiveReturn = array(
             array('name' => 'test name 1'),
@@ -746,7 +744,7 @@ class FlavorTest extends Base
 
         $status = 'fauxStatus';
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $result = $domainFlavor->getAll($status);
@@ -770,8 +768,7 @@ class FlavorTest extends Base
      */
     public function getYogurtFlavorsReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getYogurtFlavorsReturn = array('flavor test name');
         $daoFlavor->expects($this->once())
@@ -780,7 +777,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -808,8 +805,7 @@ class FlavorTest extends Base
             array('name' => 'zflavor name',),
         );
 
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $daoFlavor->expects($this->once())
             ->method('getYogurtFlavors')
@@ -817,7 +813,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -833,8 +829,7 @@ class FlavorTest extends Base
      */
     public function getBeveragesReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getBeveragesFlavorsReturn = array('beverage test name');
         $daoFlavor->expects($this->once())
@@ -843,7 +838,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -859,8 +854,7 @@ class FlavorTest extends Base
      */
     public function getFreshFruitToppingsReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getFreshFruitToppingsReturn = array('fruit test name');
         $daoFlavor->expects($this->once())
@@ -869,7 +863,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -885,8 +879,7 @@ class FlavorTest extends Base
      */
     public function getDryToppingsReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getDryToppingsReturn = array('dry fruit test name');
         $daoFlavor->expects($this->once())
@@ -895,7 +888,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -911,8 +904,7 @@ class FlavorTest extends Base
      */
     public function getLightSyrupToppingsReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getLightSyrupToppingsReturn = array('dry fruit test name');
         $daoFlavor->expects($this->once())
@@ -921,7 +913,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
@@ -937,8 +929,7 @@ class FlavorTest extends Base
      */
     public function getExtraFlavorKeysReturnsExpected()
     {
-        $daoFlavor = $this->getMockBuilder('\Yumilicious\Dao\Flavor')
-            ->getMock();
+        $daoFlavor = $this->getDaoFlavor();
 
         $getExtraFlavorKeysReturn = array('extra flavor test name');
         $daoFlavor->expects($this->once())
@@ -947,7 +938,7 @@ class FlavorTest extends Base
 
         $this->app['daoFlavor'] = $daoFlavor;
 
-        /** @var $domainFlavor \Yumilicious\Domain\Flavor */
+        /** @var $domainFlavor Domain\Flavor */
         $domainFlavor = $this->app['domainFlavor'];
 
         $this->assertEquals(
