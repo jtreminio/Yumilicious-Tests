@@ -10,13 +10,13 @@ use Yumilicious\Validator;
 class PersonAccountTest extends Base
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return Domain\PersonAccount|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomainPersonAccount()
     {
         return $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
             ->disableOriginalConstructor()
-            ->setMethods(array('password_hash'))
+            ->setMethods(array('password_hash', 'password_verify'))
             ->getMock();
     }
 
@@ -45,10 +45,8 @@ class PersonAccountTest extends Base
      */
     public function createReturnsFalseOnAccountNotCreated()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
         $entityPersonAccount = $this->getEntityPersonAccount();
 
         $validateReturn = array();
@@ -61,8 +59,8 @@ class PersonAccountTest extends Base
             ->method('create')
             ->will($this->returnValue($createReturn));
 
+        $this->app['daoPersonAccount']    = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
 
         $dataSet = array(
             'password'       => 'blah123',
@@ -90,7 +88,6 @@ class PersonAccountTest extends Base
             $expectedException
         );
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
 
         $dataSet = array(
@@ -130,7 +127,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount->create($dataSet);
     }
 
@@ -141,8 +137,7 @@ class PersonAccountTest extends Base
     public function createReturnsEntityOnSuccess()
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $createdId = 321;
         $daoPersonAccount->expects($this->once())
@@ -168,7 +163,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         /** @var $entity Entity\PersonAccount */
         $entity = $domainPersonAccount->create($dataSet);
 
@@ -198,9 +192,9 @@ class PersonAccountTest extends Base
     public function updateReturnsFalseOnNoUpdate()
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
-        $daoPersonAccount = $this->getDaoPersonAccount();
-
+        $daoPersonAccount    = $this->getDaoPersonAccount();
         $entityPersonAccount = new Entity\PersonAccount();
+
         $entityPersonAccount->setPassword('abc');
 
         $updateValue = false;
@@ -212,7 +206,6 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $this->assertFalse(
             $domainPersonAccount->update($entityPersonAccount, true),
             'Expecting ::update() to return false'
@@ -226,10 +219,10 @@ class PersonAccountTest extends Base
     public function updateReturnsEntityOnSuccess()
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
+        $entityPersonAccount = new Entity\PersonAccount();
 
         $displayName = 'test name';
-        $entityPersonAccount = new Entity\PersonAccount();
         $entityPersonAccount->setDisplayName($displayName);
         $entityPersonAccount->setPassword('abc');
 
@@ -263,7 +256,6 @@ class PersonAccountTest extends Base
             'Password must be entered exactly the same twice'
         );
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
 
         $dataset = array('password' => 'fubar');
@@ -282,7 +274,6 @@ class PersonAccountTest extends Base
             'Password must be entered exactly the same twice'
         );
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
 
         $dataset = array(
@@ -304,8 +295,7 @@ class PersonAccountTest extends Base
             'updatedBy - This value should not be blank.<br />'
         );
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
-        $domainPersonAccount = $this->getDomainPersonAccount();
+       $domainPersonAccount = $this->getDomainPersonAccount();
 
         $dataset = array(
             'displayName'    => 'test name',
@@ -329,10 +319,8 @@ class PersonAccountTest extends Base
      */
     public function updateFromArrayReturnsEntityOnSuccess()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $updateValue = true;
         $daoPersonAccount->expects($this->once())
@@ -355,6 +343,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $result Entity\PersonAccount */
         $result = $domainPersonAccount->updateFromArray($dataset);
 
         $this->assertEquals(
@@ -370,9 +359,8 @@ class PersonAccountTest extends Base
      */
     public function getAllReturnsFalseOnNoResults()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $getAllValue = array();
         $daoPersonAccount->expects($this->once())
@@ -395,9 +383,8 @@ class PersonAccountTest extends Base
      */
     public function getAllReturnsMultipleEntities()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $getAllValue = array(
             array('displayName' => 'sample name 1'),
@@ -432,9 +419,8 @@ class PersonAccountTest extends Base
      */
     public function getOneByIdReturnsFalseOnNoResult()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $id = 123;
 
@@ -460,10 +446,8 @@ class PersonAccountTest extends Base
      */
     public function getOneByIdReturnsEntityOnFound()
     {
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $domainPersonAccount = $this->getDomainPersonAccount();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
 
         $personId = 123;
         $email = 'foo@bar.com';
@@ -482,6 +466,7 @@ class PersonAccountTest extends Base
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
+        /** @var $result Entity\PersonAccount */
         $result = $domainPersonAccount->getOneById($personId);
 
         $this->assertEquals(
@@ -504,9 +489,7 @@ class PersonAccountTest extends Base
     public function getPersonByEmailAndPasswordReturnsFalseOnEmailNotFound()
     {
         $domainPersonAccount = $this->getDomainPersonAccount();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
-
+        $daoPersonAccount    = $this->getDaoPersonAccount();
         $entityPersonAccount = $this->getEntityPersonAccount();
 
         $email = 'test@test.com';
@@ -522,14 +505,13 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
+        $this->app['daoPersonAccount']    = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
         $password = 'foobar';
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
             'Expecting return false '
@@ -542,18 +524,12 @@ class PersonAccountTest extends Base
      */
     public function getPersonByEmailAndPasswordReturnsFalseOnMismatchedPasswords()
     {
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
+        $entityPersonAccount = $this->getEntityPersonAccount();
+
         $email = 'test@test.com';
         $password = 'foobar';
-
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_verify',))
-            ->getMock();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
-
-        $entityPersonAccount = $this->getMockBuilder('\Yumilicious\Entity\PersonAccount')
-            ->getMock();
 
         $expectedPersonAccount = array('password' => 'BADPASSWORD');
 
@@ -571,12 +547,11 @@ class PersonAccountTest extends Base
         $entityPersonAccount->expects($this->never())
             ->method('hydrate');
 
-        $this->app['daoPersonAccount'] = $daoPersonAccount;
+        $this->app['daoPersonAccount']    = $daoPersonAccount;
         $this->app['entityPersonAccount'] = $entityPersonAccount;
 
         $this->setAttribute($domainPersonAccount, 'app', $this->app);
 
-        /** @var $domainPersonAccount Domain\PersonAccount */
         $this->assertFalse(
             $domainPersonAccount->getPersonByEmailAndPassword($email, $password),
             'Expected Domain\PersonAccount::password_verify to return false'
@@ -589,15 +564,11 @@ class PersonAccountTest extends Base
      */
     public function getPersonByEmailAndPasswordReturnsEntityOnSuccess()
     {
+        $domainPersonAccount = $this->getDomainPersonAccount();
+        $daoPersonAccount    = $this->getDaoPersonAccount();
+
         $email = 'test@test.com';
         $password = 'foobar';
-
-        $domainPersonAccount = $this->getMockBuilder('\Yumilicious\Domain\PersonAccount')
-            ->disableOriginalConstructor()
-            ->setMethods(array('password_verify',))
-            ->getMock();
-
-        $daoPersonAccount = $this->getDaoPersonAccount();
 
         $expectedPersonAccount = array(
             'email'    => $email,
