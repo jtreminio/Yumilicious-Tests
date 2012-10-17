@@ -213,6 +213,83 @@ class FlavorTypeTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\FlavorType::update
+     */
+    public function updateReturnsFalseOnFailedUpdate()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $updateReturn = false;
+        $daoFlavorType->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $entityId = 123;
+        $entityFlavorType = new Entity\FlavorType();
+        $entityFlavorType->setId($entityId);
+
+        $this->assertFalse(
+            $domainFlavorType->update($entityFlavorType),
+            'Expected ::update() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::update
+     */
+    public function updateThrowsExceptionOnIdAndParentIdSame()
+    {
+        $this->setExpectedException(
+            'Yumilicious\Exception\Domain',
+            'Flavor type parent cannot be itself'
+        );
+
+        $domainFlavorType = $this->getDomainFlavorType();
+
+        $entityId = 123;
+        $entityFlavorType = new Entity\FlavorType();
+        $entityFlavorType->setId($entityId);
+        $entityFlavorType->setParentId($entityId);
+
+        $domainFlavorType->update($entityFlavorType);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::update
+     */
+    public function updateReturnsEntity()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $updateReturn = true;
+        $daoFlavorType->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $entityId = 123;
+        $entityFlavorType = new Entity\FlavorType();
+        $entityFlavorType->setId($entityId);
+
+        /** @var $result Entity\FlavorType */
+        $result = $domainFlavorType->update($entityFlavorType);
+
+        $this->assertEquals(
+            $result->getId(),
+            $entityId,
+            'Entity id did not match expected'
+        );
+    }
+
+    /**
+     * @test
      * @dataProvider providerGetAllReturnsFalseOnNoResults
      * @covers \Yumilicious\Domain\FlavorType::getAll
      */
