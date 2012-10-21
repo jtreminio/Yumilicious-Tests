@@ -290,6 +290,119 @@ class FlavorTypeTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\FlavorType::updateFromArray
+     */
+    public function updateFromArrayThrowsErrorOnValidateFailure()
+    {
+        $this->setExpectedException(
+            'Yumilicious\Exception\Domain',
+            'updatedBy - This value should not be blank.<br />'
+        );
+
+        $domainFlavorType = $this->getDomainFlavorType();
+
+        $dataset = array(
+            'id'   => 123,
+            'name' => 'test name',
+        );
+
+        $domainFlavorType->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::updateFromArray
+     */
+    public function updateFromArrayReturnsEntity()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $updateReturn = true;
+        $daoFlavorType->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $dataset = array(
+            'id'        => 123,
+            'name'      => 'test name',
+            'updatedBy' => 321,
+        );
+
+        /** @var $result Entity\FlavorType */
+        $result = $domainFlavorType->updateFromArray($dataset);
+
+        $this->assertEquals(
+            $result->getId(),
+            $dataset['id'],
+            'Entity id did not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::getOneById
+     */
+    public function getOneByIdReturnsFalseOnNoResult()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $getOneByIdReturn = array();
+        $daoFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $id = 123;
+        $this->assertFalse(
+            $domainFlavorType->getOneById($id),
+            'Expected ::getOneById() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::getOneById
+     */
+    public function getOneByIdReturnsEntity()
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $getOneByIdReturn = array(
+            'id'   => 123,
+            'name' => 'test name 1',
+        );
+        $daoFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $id = 123;
+
+        /** @var $result Entity\FlavorType */
+        $result = $domainFlavorType->getOneById($id);
+
+        $this->assertEquals(
+            $getOneByIdReturn['id'],
+            $result->getId(),
+            'getId() did not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn['name'],
+            $result->getName(),
+            'getName() did not match expected'
+        );
+    }
+
+    /**
+     * @test
      * @dataProvider providerGetAllReturnsFalseOnNoResults
      * @covers \Yumilicious\Domain\FlavorType::getAll
      */
@@ -321,6 +434,55 @@ class FlavorTypeTest extends Base
         return array(
             array('active', 'getAllActive'),
             array('inactive', 'getAllInactive'),
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::delete
+     * @covers \Yumilicious\Domain\FlavorType::setChildrenParentIdOfDeletedType
+     * @dataProvider providerDeleteChangesParentIdOfChildrenOfDeletedTypeWhenType
+     */
+    public function deleteChangesParentIdOfChildrenOfDeletedTypeWhenType($typeParentId)
+    {
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $deleteReturn = true;
+        $daoFlavorType->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteReturn));
+
+        $typeArray = array('parentId' => $typeParentId);
+        $daoFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($typeArray));
+
+        $typeId = 123;
+
+        $daoFlavorType->expects($this->once())
+            ->method('updateParentIdOfMultipleChildren')
+            ->with($typeId, $typeParentId);
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $this->assertTrue(
+            $domainFlavorType->delete($typeId),
+            'Expected ::delete() to return true'
+        );
+    }
+
+    /**
+     * Provider for deleteChangesParentIdOfChildrenOfDeletedTypeWhenType
+     *
+     * @return array
+     */
+    public function providerDeleteChangesParentIdOfChildrenOfDeletedTypeWhenType()
+    {
+        return array(
+            array(null),
+            array(123),
+            array(987),
         );
     }
 
