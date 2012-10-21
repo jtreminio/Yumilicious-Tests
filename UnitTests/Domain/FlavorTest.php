@@ -470,6 +470,35 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::create
      */
+    public function createThrowsExceptionOnFlavorTypeNoExist()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain\Flavor',
+            'Flavor type was not found'
+        );
+
+        $domainFlavor       = $this->getDomainFlavor();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+
+        $getOneByIdReturn = false;
+        $dataset = array('flavorType' => 'test');
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['flavorType'])
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('domainFlavorType', $domainFlavorType)
+             ->setService('domainFlavorDetail', $domainFlavorDetail);
+
+        $detailsArray = array();
+        $domainFlavor->create($dataset, $detailsArray);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::create
+     */
     public function createReturnsFalseOnDaoCreateFailed()
     {
         $domainFlavor     = $this->getDomainFlavor();
@@ -837,6 +866,7 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getSortedYogurtFlavors
+     * @covers \Yumilicious\Domain\Flavor::sort_flavors
      */
     public function getSortedYogurtFlavorsReturnsExpected()
     {
