@@ -30,6 +30,16 @@ class FlavorTest extends Base
     }
 
     /**
+     * @return Domain\FlavorDetail|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDomainFlavorDetail()
+    {
+        return $this->getMockBuilder('\Yumilicious\Domain\FlavorDetail')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
      * @return Domain\FlavorType|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomainFlavorType()
@@ -451,7 +461,9 @@ class FlavorTest extends Base
             'flavorType' => 1,
         );
 
-        $domainFlavor->create($dataset);
+        $detailArray = array();
+
+        $domainFlavor->create($dataset, $detailArray);
     }
 
     /**
@@ -488,12 +500,14 @@ class FlavorTest extends Base
             'flavorType' => 1,
         );
 
+        $detailArray = array();
+
         $this->setService('daoFlavor', $daoFlavor)
              ->setService('domainFlavorType', $domainFlavorType)
              ->setService('entityFlavor', $entityFlavor);
 
         $this->assertFalse(
-            $domainFlavor->create($dataset),
+            $domainFlavor->create($dataset, $detailArray),
             'Expected return to be false'
         );
     }
@@ -504,11 +518,12 @@ class FlavorTest extends Base
      */
     public function createReturnsEntityOnSuccess()
     {
-        $domainFlavor = $this->getDomainFlavor();
-        $daoFlavor    = $this->getDaoFlavor();
-        $domainFlavorType = $this->getDomainFlavorType();
-        $entityFlavor = $this->getEntityFlavor();
-        $entityFlavorType = new Entity\FlavorType();
+        $domainFlavor       = $this->getDomainFlavor();
+        $daoFlavor          = $this->getDaoFlavor();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $entityFlavor       = $this->getEntityFlavor();
+        $entityFlavorType   = new Entity\FlavorType();
 
         $flavorTypeId = 1;
         $entityFlavorType->setId($flavorTypeId);
@@ -527,17 +542,25 @@ class FlavorTest extends Base
             ->method('create')
             ->will($this->returnValue($createReturn));
 
+        $createMultipleFromArrayReturn = true;
+        $domainFlavorDetail->expects($this->once())
+            ->method('createMultipleFromArray')
+            ->will($this->returnValue($createMultipleFromArrayReturn));
+
         $dataset = array(
             'name'       => 'test name',
             'flavorType' => 1,
         );
 
+        $detailArray = array();
+
         $this->setService('daoFlavor', $daoFlavor)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
              ->setService('domainFlavorType', $domainFlavorType)
              ->setService('entityFlavor', $entityFlavor);
 
         /** @var $result Entity\Flavor */
-        $result = $domainFlavor->create($dataset);
+        $result = $domainFlavor->create($dataset, $detailArray);
 
         $this->assertEquals(
             $dataset['name'],

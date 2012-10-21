@@ -227,12 +227,12 @@ class DomainTest extends Base
     {
         $domain = $this->getDomain();
 
-        $entity1 = new Entity\FlavorDetail();
-        $entity2 = new Entity\FlavorDetail();
-        $entity3 = new Entity\FlavorDetail();
-        $entity4 = new Entity\FlavorDetail();
-        $entity5 = new Entity\FlavorDetail();
-        $entity6 = new Entity\FlavorDetail();
+        $entity1 = new Entity\FlavorType();
+        $entity2 = new Entity\FlavorType();
+        $entity3 = new Entity\FlavorType();
+        $entity4 = new Entity\FlavorType();
+        $entity5 = new Entity\FlavorType();
+        $entity6 = new Entity\FlavorType();
 
         $entity1->setId(1);
         $entity2->setId(2);
@@ -241,12 +241,12 @@ class DomainTest extends Base
         $entity5->setId(5);
         $entity6->setId(6);
 
-        $entity1->setSlug('entity1');
-        $entity2->setSlug('entity2');
-        $entity3->setSlug('entity3');
-        $entity4->setSlug('entity4');
-        $entity5->setSlug('entity5');
-        $entity6->setSlug('entity6');
+        $entity1->setName('entity1');
+        $entity2->setName('entity2');
+        $entity3->setName('entity3');
+        $entity4->setName('entity4');
+        $entity5->setName('entity5');
+        $entity6->setName('entity6');
 
         $entity3->setParentId(1);
         $entity4->setParentId(2);
@@ -273,7 +273,7 @@ class DomainTest extends Base
         // entity2
         $children2 = $result[1]->getChildren();
         // entity3
-        $children3 = $children1['entity3']->getChildren();
+        $children3 = $children1['3']->getChildren();
 
         $this->assertEquals(
             $entity1->getId(),
@@ -287,12 +287,12 @@ class DomainTest extends Base
 
         $this->assertEquals(
             $entity3->getId(),
-            $children1['entity3']->getId()
+            $children1['3']->getId()
         );
 
         $this->assertEquals(
             $entity5->getId(),
-            $children3['entity5']->getId()
+            $children3['5']->getId()
         );
     }
 }
