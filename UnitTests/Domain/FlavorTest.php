@@ -444,6 +444,7 @@ class FlavorTest extends Base
         );
 
         $domainFlavor     = $this->getDomainFlavor();
+        $daoFlavor        = $this->getDaoFlavor();
         $domainFlavorType = $this->getDomainFlavorType();
         $entityFlavorType = new Entity\FlavorType();
 
@@ -454,7 +455,8 @@ class FlavorTest extends Base
             ->method('getOneById')
             ->will($this->returnValue($entityFlavorType));
 
-        $this->setService('domainFlavorType', $domainFlavorType);
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('domainFlavorType', $domainFlavorType);
 
         $dataset = array(
             'name'       => 'test name',
