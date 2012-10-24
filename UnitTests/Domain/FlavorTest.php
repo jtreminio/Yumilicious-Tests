@@ -444,6 +444,47 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::create
      */
+    public function createThrowsExceptionOnFlavorNameAlreadyExisting()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Flavor name already exists'
+        );
+
+        $domainFlavor     = $this->getDomainFlavor();
+        $daoFlavor        = $this->getDaoFlavor();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $domainFlavorType = $this->getDomainFlavorType();
+        $entityFlavorType = new Entity\FlavorType();
+
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($entityFlavorType));
+
+        $dataset = array(
+            'name'       => 'test name',
+            'flavorType' => 1,
+        );
+
+        $getOneByNameReturn = array('name' => 'not empty');
+        $daoFlavor->expects($this->once())
+            ->method('getOneByName')
+            ->with($dataset['name'])
+            ->will($this->returnValue($getOneByNameReturn));
+
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorType', $domainFlavorType);
+
+        $detailArray = array();
+
+        $domainFlavor->create($dataset, $detailArray);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::create
+     */
     public function createThrowsExceptionOnValidateReturnFalse()
     {
         $this->setExpectedException(
@@ -451,10 +492,11 @@ class FlavorTest extends Base
             'updatedBy - This value should not be blank.<br />'
         );
 
-        $domainFlavor     = $this->getDomainFlavor();
-        $daoFlavor        = $this->getDaoFlavor();
-        $domainFlavorType = $this->getDomainFlavorType();
-        $entityFlavorType = new Entity\FlavorType();
+        $domainFlavor       = $this->getDomainFlavor();
+        $daoFlavor          = $this->getDaoFlavor();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $entityFlavorType   = new Entity\FlavorType();
 
         $flavorTypeId = 1;
         $entityFlavorType->setId($flavorTypeId);
@@ -464,6 +506,7 @@ class FlavorTest extends Base
             ->will($this->returnValue($entityFlavorType));
 
         $this->setService('daoFlavor', $daoFlavor)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
              ->setService('domainFlavorType', $domainFlavorType);
 
         $dataset = array(
@@ -665,6 +708,36 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::updateFromArray
      */
+    public function updateFromArrayThrowsExceptionOnFlavorTypeNotFound()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Flavor type was not found'
+        );
+
+        $domainFlavor     = $this->getDomainFlavor();
+        $domainFlavorType = $this->getDomainFlavorType();
+
+        $dataset = array(
+            'name'       => 'test name',
+            'flavorType' => 123,
+        );
+
+        $getOneByIdReturn = false;
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['flavorType'])
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('domainFlavorType', $domainFlavorType);
+
+        $domainFlavor->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     */
     public function updateFromArrayThrowsExceptionOnValidateFailure()
     {
         $this->setExpectedException(
@@ -686,6 +759,53 @@ class FlavorTest extends Base
             'name'       => 'test name',
             'flavorType' => 123,
         );
+
+        $domainFlavor->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     */
+    public function updateFromArrayThrowsErrorOnFlavorNameAlreadyExistsAndNotThisFlavor()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Flavor name already exists'
+        );
+
+        $domainFlavor       = $this->getDomainFlavor();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $daoFlavor          = $this->getDaoFlavor();
+        $entityFlavor       = $this->getEntityFlavor();
+        $entityFlavorType   = new Entity\FlavorType();
+
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($entityFlavorType));
+
+        $validateReturn = array();
+        $entityFlavor->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $dataset = array(
+            'id'         => 123,
+            'name'       => 'test name',
+            'flavorType' => 123,
+        );
+
+        $getOneByName = array('id' => 456);
+        $daoFlavor->expects($this->once())
+            ->method('getOneByName')
+            ->with($dataset['name'])
+            ->will($this->returnValue($getOneByName));
+
+        $this->setService('daoFlavor', $daoFlavor)
+            ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorType', $domainFlavorType)
+             ->setService('entityFlavor', $entityFlavor);
 
         $domainFlavor->updateFromArray($dataset);
     }
@@ -852,8 +972,10 @@ class FlavorTest extends Base
         $daoFlavor    = $this->getDaoFlavor();
 
         $getAllActiveReturn = array();
+        $activeStatus = 1;
         $daoFlavor->expects($this->once())
-            ->method('getAllActive')
+            ->method('getAllByActive')
+            ->with($activeStatus)
             ->will($this->returnValue($getAllActiveReturn));
 
         $this->setService('daoFlavor', $daoFlavor);
@@ -876,8 +998,10 @@ class FlavorTest extends Base
         $daoFlavor    = $this->getDaoFlavor();
 
         $getAllActiveReturn = array();
+        $activeStatus = 0;
         $daoFlavor->expects($this->once())
-            ->method('getAllInactive')
+            ->method('getAllByActive')
+            ->with($activeStatus)
             ->will($this->returnValue($getAllActiveReturn));
 
         $this->setService('daoFlavor', $daoFlavor);
