@@ -734,13 +734,44 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getOneById
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
+     * @covers \Yumilicious\Domain::multiIntersect
+     * @covers \Yumilicious\Domain::matchArrayKeys
+     * @covers \Yumilicious\Domain::cropArrayKeys
+     * @covers \Yumilicious\Domain::removeMatchingArrayKeys
      */
     public function getOneByIdEntityOnSuccess()
     {
         $domainFlavor = $this->getDomainFlavor();
         $daoFlavor    = $this->getDaoFlavor();
 
-        $getOneByIdReturn = array('name' => 'test name');
+        $getOneByIdReturn = array(
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'type-id' => 321,
+                'type-name' => 'Test Name Type',
+                'detail-id' => 213,
+                'detail-name' => 'rbstFree'
+            ),
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'type-id' => 321,
+                'type-name' => 'Test Name Type',
+                'detail-id' => 546,
+                'detail-name' => 'vegetarian'
+            ),
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'type-id' => 321,
+                'type-name' => 'Test Name Type',
+                'detail-id' => 879,
+                'detail-name' => 'calories'
+            ),
+        );
+
         $daoFlavor->expects($this->once())
             ->method('getOneById')
             ->will($this->returnValue($getOneByIdReturn));
@@ -752,9 +783,33 @@ class FlavorTest extends Base
         $result = $domainFlavor->getOneById($id);
 
         $this->assertEquals(
-            $getOneByIdReturn['name'],
+            $getOneByIdReturn[0]['name'],
             $result->getName(),
             '::getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['type-id'],
+            $result->getFlavorType()->getId(),
+            'Flavor Type Id did not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['detail-name'],
+            $result->getDetails()['rbstFree']->getName(),
+            'Result did not contain expected rbstFree detail'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[1]['detail-name'],
+            $result->getDetails()['vegetarian']->getName(),
+            'Result did not contain expected vegetarian detail'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[2]['detail-name'],
+            $result->getDetails()['calories']->getName(),
+            'Result did not contain expected calories detail'
         );
     }
 
