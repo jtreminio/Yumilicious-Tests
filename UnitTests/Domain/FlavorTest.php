@@ -17,6 +17,14 @@ class FlavorTest extends Base
         return $this->getMockBuilder('\Yumilicious\Dao\Flavor')
             ->getMock();
     }
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDaoFlavorDetail()
+    {
+        return $this->getMockBuilder('\Yumilicious\Dao\FlavorDetail')
+            ->getMock();
+    }
 
     /**
      * @return Domain\Flavor|\PHPUnit_Framework_MockObject_MockObject
@@ -894,6 +902,115 @@ class FlavorTest extends Base
             $getAllActiveReturn[1]['name'],
             $result[1]->getName(),
             'Expected second entity to match name'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::delete
+     */
+    public function deleteThrowsExceptionOnFlavorNotFound()
+    {
+        $flavorId = 123;
+
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            "Flavor Id {$flavorId} was not found"
+        );
+
+        $domainFlavor    = $this->getDomainFlavor();
+        $daoFlavor       = $this->getDaoFlavor();
+        $daoFlavorDetail = $this->getDaoFlavorDetail();
+
+        $getOneByIdReturn = false;
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('daoFlavorDetail', $daoFlavorDetail);
+
+        $domainFlavor->delete($flavorId);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::delete
+     */
+    public function deleteThrowsExceptionOnErrorDeleting()
+    {
+        $flavorId = 123;
+
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'There was a problem deleting some flavor information from the database!'
+        );
+
+        $domainFlavor    = $this->getDomainFlavor();
+        $daoFlavor       = $this->getDaoFlavor();
+        $daoFlavorDetail = $this->getDaoFlavorDetail();
+
+        $getOneByIdReturn = array(
+            'id'   => $flavorId,
+            'name' => 'Test Name',
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $daoFlavor->expects($this->once())
+            ->method('delete')
+            ->will($this->throwException(new \Exception()));
+
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('daoFlavorDetail', $daoFlavorDetail);
+
+        $domainFlavor->delete($flavorId);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::delete
+     */
+    public function deleteReturnsTrue()
+    {
+        $flavorId = 123;
+
+        /** @var $domainFlavor Domain\Flavor|\PHPUnit_Framework_MockObject_MockObject */
+        $domainFlavor    = $this->getMockBuilder('\Yumilicious\Domain\Flavor')
+            ->setConstructorArgs(array($this->app))
+            ->setMethods(array('deleteImage'))
+            ->getMock();
+        $daoFlavor       = $this->getDaoFlavor();
+        $daoFlavorDetail = $this->getDaoFlavorDetail();
+
+        $getOneByIdReturn = array(
+            'id'   => $flavorId,
+            'name' => 'Test Name',
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $deleteReturn = true;
+        $daoFlavor->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteReturn));
+
+        $daoFlavorDetail->expects($this->once())
+            ->method('deleteByFlavorId')
+            ->with($flavorId)
+            ->will($this->returnValue($deleteReturn));
+
+        $domainFlavor->expects($this->once())
+            ->method('deleteImage');
+
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('daoFlavorDetail', $daoFlavorDetail);
+
+        $this->assertTrue(
+            $domainFlavor->delete($flavorId),
+            'Expected ::delete() to return true'
         );
     }
 
