@@ -32,6 +32,7 @@ class FlavorDetailTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\FlavorDetail::createMultipleFromArray
+     * @covers \Yumilicious\Domain\FlavorDetail::getMultipleDetailsEntitiesFromArray
      */
     public function createMultipleFromArrayReturnsFalseOnEmptyArrayParameter()
     {

@@ -591,7 +591,7 @@ class FlavorTest extends Base
             'flavorType' => 1,
         );
 
-        $detailArray = array();
+        $detailArray = array('link' => 'http://test.com');
 
         $this->setService('daoFlavor', $daoFlavor)
              ->setService('domainFlavorDetail', $domainFlavorDetail)
@@ -672,11 +672,20 @@ class FlavorTest extends Base
             'updatedBy - This value should not be blank.<br />'
         );
 
-        $dataset = array(
-            'name' => 'test name',
-        );
+        $domainFlavor     = $this->getDomainFlavor();
+        $domainFlavorType = $this->getDomainFlavorType();
+        $entityFlavorType = new Entity\FlavorType();
 
-        $domainFlavor = $this->getDomainFlavor();
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($entityFlavorType));
+
+        $this->setService('domainFlavorType', $domainFlavorType);
+
+        $dataset = array(
+            'name'       => 'test name',
+            'flavorType' => 123,
+        );
 
         $domainFlavor->updateFromArray($dataset);
     }
@@ -687,9 +696,16 @@ class FlavorTest extends Base
      */
     public function updateFromArrayReturnsEntityOnSuccess()
     {
-        $domainFlavor = $this->getDomainFlavor();
-        $daoFlavor    = $this->getDaoFlavor();
-        $entityFlavor = $this->getEntityFlavor();
+        $domainFlavor       = $this->getDomainFlavor();
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $daoFlavor          = $this->getDaoFlavor();
+        $entityFlavor       = $this->getEntityFlavor();
+        $entityFlavorType   = new Entity\FlavorType();
+
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($entityFlavorType));
 
         $validateReturn = array();
         $entityFlavor->expects($this->once())
@@ -702,9 +718,14 @@ class FlavorTest extends Base
             ->will($this->returnValue($updateReturn));
 
         $this->setService('daoFlavor', $daoFlavor)
+            ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorType', $domainFlavorType)
              ->setService('entityFlavor', $entityFlavor);
 
-        $dataset = array('name' => 'test name');
+        $dataset = array(
+            'name' => 'test name',
+            'flavorType' => 123,
+        );
 
         /** @var $result Entity\Flavor */
         $result = $domainFlavor->updateFromArray($dataset);
