@@ -1177,7 +1177,8 @@ class FlavorTest extends Base
             ->with($flavorId)
             ->will($this->returnValue($deleteReturn));
 
-        $domainFlavor->expects($this->once())
+        $deleteImageCallCount = 2;
+        $domainFlavor->expects($this->exactly($deleteImageCallCount))
             ->method('deleteImage');
 
         $this->setService('daoFlavor', $daoFlavor)
