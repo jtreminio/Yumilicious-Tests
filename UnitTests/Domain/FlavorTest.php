@@ -462,8 +462,8 @@ class FlavorTest extends Base
             ->will($this->returnValue($entityFlavorType));
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 1,
+            'name' => 'test name',
+            'type' => 1,
         );
 
         $getOneByNameReturn = array('name' => 'not empty');
@@ -510,8 +510,8 @@ class FlavorTest extends Base
              ->setService('domainFlavorType', $domainFlavorType);
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 1,
+            'name' => 'test name',
+            'type' => 1,
         );
 
         $detailArray = array();
@@ -523,7 +523,7 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::create
      */
-    public function createThrowsExceptionOnFlavorTypeNoExist()
+    public function createThrowsExceptionOnTypeNotExist()
     {
         $this->setExpectedException(
             '\Yumilicious\Exception\Domain\Flavor',
@@ -535,10 +535,10 @@ class FlavorTest extends Base
         $domainFlavorDetail = $this->getDomainFlavorDetail();
 
         $getOneByIdReturn = false;
-        $dataset = array('flavorType' => 'test');
+        $dataset = array('type' => 'test');
         $domainFlavorType->expects($this->once())
             ->method('getOneById')
-            ->with($dataset['flavorType'])
+            ->with($dataset['type'])
             ->will($this->returnValue($getOneByIdReturn));
 
         $this->setService('domainFlavorType', $domainFlavorType)
@@ -578,8 +578,8 @@ class FlavorTest extends Base
             ->will($this->returnValue($createReturn));
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 1,
+            'name' => 'test name',
+            'type' => 1,
         );
 
         $detailArray = array();
@@ -630,8 +630,8 @@ class FlavorTest extends Base
             ->will($this->returnValue($createMultipleFromArrayReturn));
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 1,
+            'name' => 'test name',
+            'type' => 1,
         );
 
         $detailArray = array('link' => 'http://test.com');
@@ -708,7 +708,7 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::updateFromArray
      */
-    public function updateFromArrayThrowsExceptionOnFlavorTypeNotFound()
+    public function updateFromArrayThrowsExceptionOnTypeNotFound()
     {
         $this->setExpectedException(
             '\Yumilicious\Exception\Domain',
@@ -719,14 +719,14 @@ class FlavorTest extends Base
         $domainFlavorType = $this->getDomainFlavorType();
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 123,
+            'name' => 'test name',
+            'type' => 123,
         );
 
         $getOneByIdReturn = false;
         $domainFlavorType->expects($this->once())
             ->method('getOneById')
-            ->with($dataset['flavorType'])
+            ->with($dataset['type'])
             ->will($this->returnValue($getOneByIdReturn));
 
         $this->setService('domainFlavorType', $domainFlavorType);
@@ -756,8 +756,8 @@ class FlavorTest extends Base
         $this->setService('domainFlavorType', $domainFlavorType);
 
         $dataset = array(
-            'name'       => 'test name',
-            'flavorType' => 123,
+            'name' => 'test name',
+            'type' => 123,
         );
 
         $domainFlavor->updateFromArray($dataset);
@@ -791,9 +791,9 @@ class FlavorTest extends Base
             ->will($this->returnValue($validateReturn));
 
         $dataset = array(
-            'id'         => 123,
-            'name'       => 'test name',
-            'flavorType' => 123,
+            'id'   => 123,
+            'name' => 'test name',
+            'type' => 123,
         );
 
         $getOneByName = array('id' => 456);
@@ -844,7 +844,7 @@ class FlavorTest extends Base
 
         $dataset = array(
             'name' => 'test name',
-            'flavorType' => 123,
+            'type' => 123,
         );
 
         /** @var $result Entity\Flavor */
@@ -938,7 +938,7 @@ class FlavorTest extends Base
 
         $this->assertEquals(
             $getOneByIdReturn[0]['type-id'],
-            $result->getFlavorType()->getId(),
+            $result->getType()->getId(),
             'Flavor Type Id did not match expected'
         );
 
