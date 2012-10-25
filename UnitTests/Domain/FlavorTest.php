@@ -884,7 +884,6 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::getOneById
      * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
-     * @covers \Yumilicious\Domain::multiIntersect
      * @covers \Yumilicious\Domain::matchArrayKeys
      * @covers \Yumilicious\Domain::cropArrayKeys
      * @covers \Yumilicious\Domain::removeMatchingArrayKeys
@@ -1016,7 +1015,9 @@ class FlavorTest extends Base
 
     /**
      * @test
-     * @covers \Yumilicious\Domain\Flavor::getall
+     * @covers \Yumilicious\Domain\Flavor::getAll
+     * @covers \Yumilicious\Domain\Flavor::nestMultipleResultsById
+     * @covers \Yumilicious\Domain::matchArrayKeyToString
      */
     public function getAllReturnsEntityOnSuccess()
     {
@@ -1024,8 +1025,38 @@ class FlavorTest extends Base
         $daoFlavor    = $this->getDaoFlavor();
 
         $getAllActiveReturn = array(
-            array('name' => 'test name 1'),
-            array('name' => 'test name 2'),
+            array(
+                'id'          => 123,
+                'name'        => 'test name 1',
+                'type-id'     => 1234,
+                'type-name'   => 'test type name 1',
+                'detail-id'   => 4321,
+                'detail-name' => 'test detail name 1',
+            ),
+            array(
+                'id'          => 123,
+                'name'        => 'test name 1',
+                'type-id'     => 1234,
+                'type-name'   => 'test type name 1',
+                'detail-id'   => 43210,
+                'detail-name' => 'test detail name 1-1',
+            ),
+            array(
+                'id'          => 456,
+                'name'        => 'test name 2',
+                'type-id'     => 4567,
+                'type-name'   => 'test type name 2',
+                'detail-id'   => 7654,
+                'detail-name' => 'test detail name 2',
+            ),
+            array(
+                'id'          => 456,
+                'name'        => 'test name 2',
+                'type-id'     => 4567,
+                'type-name'   => 'test type name 2',
+                'detail-id'   => 76543,
+                'detail-name' => 'test detail name 2-1',
+            ),
         );
         $daoFlavor->expects($this->once())
             ->method('getAll')
@@ -1034,7 +1065,6 @@ class FlavorTest extends Base
         $this->setService('daoFlavor', $daoFlavor);
 
         $status = 'fauxStatus';
-
         $result = $domainFlavor->getAll($status);
 
         $this->assertEquals(
@@ -1044,7 +1074,7 @@ class FlavorTest extends Base
         );
 
         $this->assertEquals(
-            $getAllActiveReturn[1]['name'],
+            $getAllActiveReturn[2]['name'],
             $result[1]->getName(),
             'Expected second entity to match name'
         );
