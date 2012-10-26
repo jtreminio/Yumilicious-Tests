@@ -457,16 +457,22 @@ class FlavorTest extends Base
         $domainFlavorType = $this->getDomainFlavorType();
         $entityFlavorType = new Entity\FlavorType();
 
+        $flavorTypeId = 123;
+        $entityFlavorType->setId($flavorTypeId);
+
         $domainFlavorType->expects($this->once())
             ->method('getOneById')
             ->will($this->returnValue($entityFlavorType));
 
         $dataset = array(
             'name' => 'test name',
-            'type' => 1,
+            'type' => 123,
         );
 
-        $getOneByNameReturn = array('name' => 'not empty');
+        $getOneByNameReturn = array(
+            'name' => 'not empty',
+            'type'   => $flavorTypeId,
+        );
         $daoFlavor->expects($this->once())
             ->method('getOneByName')
             ->with($dataset['name'])

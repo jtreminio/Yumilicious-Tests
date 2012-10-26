@@ -78,7 +78,7 @@ class FlavorTypeTest extends Base
             'name'     => 'test name'
         );
 
-        $getOneByIdReturn = true;
+        $getOneByIdReturn = array('name' => 'Parent Name');
         $daoFlavorType->expects($this->once())
             ->method('getOneById')
             ->with($dataset['parentId'])
@@ -116,7 +116,7 @@ class FlavorTypeTest extends Base
             'name'     => 'test name'
         );
 
-        $getOneByIdReturn = true;
+        $getOneByIdReturn = array('name' => 'Parent name');
         $daoFlavorType->expects($this->once())
             ->method('getOneById')
             ->with($dataset['parentId'])
@@ -176,7 +176,7 @@ class FlavorTypeTest extends Base
             'updatedBy' => 321,
         );
 
-        $getOneByIdReturn = true;
+        $getOneByIdReturn = array('name' => 'Parent name');
         $daoFlavorType->expects($this->once())
             ->method('getOneById')
             ->with($dataset['parentId'])
@@ -228,8 +228,15 @@ class FlavorTypeTest extends Base
         $this->setService('daoFlavorType', $daoFlavorType);
 
         $entityId = 123;
-        $entityFlavorType = new Entity\FlavorType();
+        $parentId = 321;
+
+        $entityFlavorType       = new Entity\FlavorType();
+        $entityFlavorTypeParent = new Entity\FlavorType();
+
+        $entityFlavorTypeParent->setId($parentId);
+
         $entityFlavorType->setId($entityId);
+        $entityFlavorType->setParent($entityFlavorTypeParent);
 
         $this->assertFalse(
             $domainFlavorType->update($entityFlavorType),
@@ -251,9 +258,15 @@ class FlavorTypeTest extends Base
         $domainFlavorType = $this->getDomainFlavorType();
 
         $entityId = 123;
-        $entityFlavorType = new Entity\FlavorType();
+        $parentId = 123;
+
+        $entityFlavorType       = new Entity\FlavorType();
+        $entityFlavorTypeParent = new Entity\FlavorType();
+
+        $entityFlavorTypeParent->setId($parentId);
+
         $entityFlavorType->setId($entityId);
-        $entityFlavorType->setParentId($entityId);
+        $entityFlavorType->setParent($entityFlavorTypeParent);
 
         $domainFlavorType->update($entityFlavorType);
     }
@@ -406,14 +419,15 @@ class FlavorTypeTest extends Base
      * @dataProvider providerGetAllReturnsFalseOnNoResults
      * @covers \Yumilicious\Domain\FlavorType::getAll
      */
-    public function getAllReturnsFalseOnNoResults($status, $getAllMethod)
+    public function getAllReturnsFalseOnNoResults($status, $getAllParameter)
     {
         $domainFlavorType = $this->getDomainFlavorType();
         $daoFlavorType    = $this->getDaoFlavorType();
 
         $getAll = array();
         $daoFlavorType->expects($this->once())
-            ->method($getAllMethod)
+            ->method('getAllByActive')
+            ->with($getAllParameter)
             ->will($this->returnValue($getAll));
 
         $this->setService('daoFlavorType', $daoFlavorType);
@@ -432,8 +446,8 @@ class FlavorTypeTest extends Base
     public function providerGetAllReturnsFalseOnNoResults()
     {
         return array(
-            array('active', 'getAllActive'),
-            array('inactive', 'getAllInactive'),
+            array('active', 1),
+            array('inactive', 0),
         );
     }
 
@@ -441,9 +455,9 @@ class FlavorTypeTest extends Base
      * @test
      * @covers \Yumilicious\Domain\FlavorType::delete
      * @covers \Yumilicious\Domain\FlavorType::setChildrenParentIdOfDeletedType
-     * @dataProvider providerDeleteChangesParentIdOfChildrenOfDeletedTypeWhenType
+     * @covers \Yumilicious\Domain\FlavorType::createNestedFlavorTypeArray
      */
-    public function deleteChangesParentIdOfChildrenOfDeletedTypeWhenType($typeParentId)
+    public function deleteChangesParentIdOfChildrenOfDeletedTypeWhenTypeHasNoParent()
     {
         $domainFlavorType = $this->getDomainFlavorType();
         $daoFlavorType    = $this->getDaoFlavorType();
@@ -453,12 +467,17 @@ class FlavorTypeTest extends Base
             ->method('delete')
             ->will($this->returnValue($deleteReturn));
 
-        $typeArray = array('parentId' => $typeParentId);
+        $typeId = 123;
+        $typeParentId = null;
+        $typeArray = array(
+            'id'   => $typeId,
+            'name' => 'Test name',
+        );
+
         $daoFlavorType->expects($this->once())
             ->method('getOneById')
+            ->with($typeId)
             ->will($this->returnValue($typeArray));
-
-        $typeId = 123;
 
         $daoFlavorType->expects($this->once())
             ->method('updateParentIdOfMultipleChildren')
@@ -473,16 +492,45 @@ class FlavorTypeTest extends Base
     }
 
     /**
-     * Provider for deleteChangesParentIdOfChildrenOfDeletedTypeWhenType
-     *
-     * @return array
+     * @test
+     * @covers \Yumilicious\Domain\FlavorType::delete
+     * @covers \Yumilicious\Domain\FlavorType::setChildrenParentIdOfDeletedType
+     * @covers \Yumilicious\Domain\FlavorType::createNestedFlavorTypeArray
      */
-    public function providerDeleteChangesParentIdOfChildrenOfDeletedTypeWhenType()
+    public function deleteChangesParentIdOfChildrenOfDeletedTypeWhenTypeHasParent()
     {
-        return array(
-            array(null),
-            array(123),
-            array(987),
+        $domainFlavorType = $this->getDomainFlavorType();
+        $daoFlavorType    = $this->getDaoFlavorType();
+
+        $deleteReturn = true;
+        $daoFlavorType->expects($this->once())
+            ->method('delete')
+            ->will($this->returnValue($deleteReturn));
+
+        $typeId = 123;
+        $typeParentId = 321;
+
+        $typeArray = array(
+            'id'          => $typeId,
+            'name'        => 'Test name',
+            'parent-id'   => $typeParentId,
+            'parent-name' => 'Parent name',
+        );
+
+        $daoFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->with($typeId)
+            ->will($this->returnValue($typeArray));
+
+        $daoFlavorType->expects($this->once())
+            ->method('updateParentIdOfMultipleChildren')
+            ->with($typeId, $typeParentId);
+
+        $this->setService('daoFlavorType', $daoFlavorType);
+
+        $this->assertTrue(
+            $domainFlavorType->delete($typeId),
+            'Expected ::delete() to return true'
         );
     }
 
@@ -603,7 +651,7 @@ class FlavorTypeTest extends Base
         );
 
         $daoFlavorType->expects($this->once())
-            ->method('getAllActive')
+            ->method('getAllByActive')
             ->will($this->returnValue($elements));
 
         $this->setService('daoFlavorType', $daoFlavorType);
