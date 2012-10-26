@@ -893,6 +893,7 @@ class FlavorTest extends Base
      * @covers \Yumilicious\Domain::matchArrayKeys
      * @covers \Yumilicious\Domain::cropArrayKeys
      * @covers \Yumilicious\Domain::removeMatchingArrayKeys
+     * @covers \Yumilicious\Domain::matchArrayKeyToArrayOfStrings
      */
     public function getOneByIdEntityOnSuccess()
     {
@@ -1022,8 +1023,8 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::getAll
-     * @covers \Yumilicious\Domain\Flavor::nestMultipleResultsById
-     * @covers \Yumilicious\Domain::matchArrayKeyToString
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
+     * @covers \Yumilicious\Domain::nestMultipleResultsByKey
      */
     public function getAllReturnsEntityOnSuccess()
     {

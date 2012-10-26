@@ -456,6 +456,7 @@ class FlavorTypeTest extends Base
      * @covers \Yumilicious\Domain\FlavorType::delete
      * @covers \Yumilicious\Domain\FlavorType::setChildrenParentIdOfDeletedType
      * @covers \Yumilicious\Domain\FlavorType::createNestedFlavorTypeArray
+     * @covers \Yumilicious\Domain::removeMatchingArrayKeys
      */
     public function deleteChangesParentIdOfChildrenOfDeletedTypeWhenTypeHasNoParent()
     {
