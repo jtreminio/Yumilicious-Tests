@@ -752,19 +752,38 @@ class FlavorTest extends Base
         );
 
         $domainFlavor     = $this->getDomainFlavor();
+        $daoFlavor        = $this->getDaoFlavor();
         $domainFlavorType = $this->getDomainFlavorType();
         $entityFlavorType = new Entity\FlavorType();
+
+        $dataset = array(
+            'id'   => 123,
+            'name' => 'test name',
+            'type' => 321,
+        );
 
         $domainFlavorType->expects($this->once())
             ->method('getOneById')
             ->will($this->returnValue($entityFlavorType));
 
-        $this->setService('domainFlavorType', $domainFlavorType);
-
-        $dataset = array(
-            'name' => 'test name',
-            'type' => 123,
+        $getOneByIdReturn = array(
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 987,
+                'detail-name'  => 'detailName1',
+                'detail-value' => '60',
+            ),
         );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['id'])
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('domainFlavorType', $domainFlavorType)
+             ->setService('daoFlavor', $daoFlavor);
 
         $domainFlavor->updateFromArray($dataset);
     }
@@ -781,9 +800,9 @@ class FlavorTest extends Base
         );
 
         $domainFlavor       = $this->getDomainFlavor();
+        $daoFlavor          = $this->getDaoFlavor();
         $domainFlavorDetail = $this->getDomainFlavorDetail();
         $domainFlavorType   = $this->getDomainFlavorType();
-        $daoFlavor          = $this->getDaoFlavor();
         $entityFlavor       = $this->getEntityFlavor();
         $entityFlavorType   = new Entity\FlavorType();
 
@@ -798,18 +817,37 @@ class FlavorTest extends Base
 
         $dataset = array(
             'id'   => 123,
-            'name' => 'test name',
+            'name' => 'duplicate name',
             'type' => 123,
         );
 
-        $getOneByName = array('id' => 456);
+        $getOneByIdReturn = array(
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 987,
+                'detail-name'  => 'detailName1',
+                'detail-value' => '60',
+            ),
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['id'])
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $getOneByNameReturn = array(
+            'id'   => 456,
+            'type' => $dataset['type'],
+        );
         $daoFlavor->expects($this->once())
             ->method('getOneByName')
             ->with($dataset['name'])
-            ->will($this->returnValue($getOneByName));
+            ->will($this->returnValue($getOneByNameReturn));
 
         $this->setService('daoFlavor', $daoFlavor)
-            ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
              ->setService('domainFlavorType', $domainFlavorType)
              ->setService('entityFlavor', $entityFlavor);
 
@@ -819,6 +857,7 @@ class FlavorTest extends Base
     /**
      * @test
      * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
      */
     public function updateFromArrayReturnsEntityOnSuccess()
     {
@@ -829,6 +868,12 @@ class FlavorTest extends Base
         $entityFlavor       = $this->getEntityFlavor();
         $entityFlavorType   = new Entity\FlavorType();
 
+        $dataset = array(
+            'id'   => 123,
+            'name' => 'test name',
+            'type' => 321,
+        );
+
         $domainFlavorType->expects($this->once())
             ->method('getOneById')
             ->will($this->returnValue($entityFlavorType));
@@ -838,20 +883,40 @@ class FlavorTest extends Base
             ->method('validate')
             ->will($this->returnValue($validateReturn));
 
+        $getOneByIdReturn = array(
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 987,
+                'detail-name'  => 'detailName1',
+                'detail-value' => '60',
+            ),
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 789,
+                'detail-name'  => 'detailName2',
+                'detail-value' => '120',
+            ),
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['id'])
+            ->will($this->returnValue($getOneByIdReturn));
+
         $updateReturn = true;
         $daoFlavor->expects($this->once())
             ->method('update')
             ->will($this->returnValue($updateReturn));
 
         $this->setService('daoFlavor', $daoFlavor)
-            ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
              ->setService('domainFlavorType', $domainFlavorType)
              ->setService('entityFlavor', $entityFlavor);
-
-        $dataset = array(
-            'name' => 'test name',
-            'type' => 123,
-        );
 
         /** @var $result Entity\Flavor */
         $result = $domainFlavor->updateFromArray($dataset);
@@ -860,6 +925,24 @@ class FlavorTest extends Base
             $dataset['name'],
             $result->getName(),
             'Entity getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $dataset['type'],
+            $result->getType()->getId(),
+            'Type id does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['detail-id'],
+            $result->getDetails()['detailName1']->getId(),
+            'Detail id 1 does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[1]['detail-name'],
+            $result->getDetails()['detailName2']->getName(),
+            'Detail name 2 does not match expected'
         );
     }
 
