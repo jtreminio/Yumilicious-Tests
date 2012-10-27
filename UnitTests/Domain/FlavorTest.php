@@ -714,6 +714,39 @@ class FlavorTest extends Base
      * @test
      * @covers \Yumilicious\Domain\Flavor::updateFromArray
      */
+    public function updateFromArrayThrowsExceptionOnFlavorNotFound()
+    {
+        $this->setExpectedException(
+            '\Yumilicious\Exception\Domain',
+            'Flavor was not found'
+        );
+
+        $domainFlavor     = $this->getDomainFlavor();
+        $daoFlavor        = $this->getDaoFlavor();
+        $domainFlavorType = $this->getDomainFlavorType();
+
+        $dataset = array(
+            'name' => 'test name',
+            'type' => 123,
+        );
+
+        $entityFlavorType = new Entity\Flavortype();
+        $entityFlavorType->setId(123);
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['type'])
+            ->will($this->returnValue($entityFlavorType));
+
+        $this->setService('domainFlavorType', $domainFlavorType)
+             ->setService('daoFlavor', $daoFlavor);
+
+        $domainFlavor->updateFromArray($dataset);
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     */
     public function updateFromArrayThrowsExceptionOnTypeNotFound()
     {
         $this->setExpectedException(
@@ -869,6 +902,104 @@ class FlavorTest extends Base
         $entityFlavorType   = new Entity\FlavorType();
 
         $dataset = array(
+            'id'         => 123,
+            'name'       => 'test name',
+            'type'       => 321,
+            'image'      => 'testImage.png',
+            'titleImage' => 'titleImage.png',
+        );
+
+        $domainFlavorType->expects($this->once())
+            ->method('getOneById')
+            ->will($this->returnValue($entityFlavorType));
+
+        $validateReturn = array();
+        $entityFlavor->expects($this->once())
+            ->method('validate')
+            ->will($this->returnValue($validateReturn));
+
+        $getOneByIdReturn = array(
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 987,
+                'detail-name'  => 'detailName1',
+                'detail-value' => '60',
+            ),
+            array(
+                'id'           => $dataset['id'],
+                'name'         => $dataset['name'],
+                'type-id'      => $dataset['type'],
+                'type-name'    => 'type name',
+                'detail-id'    => 789,
+                'detail-name'  => 'detailName2',
+                'detail-value' => '120',
+            ),
+        );
+        $daoFlavor->expects($this->once())
+            ->method('getOneById')
+            ->with($dataset['id'])
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $updateReturn = true;
+        $daoFlavor->expects($this->once())
+            ->method('update')
+            ->will($this->returnValue($updateReturn));
+
+        $this->setService('daoFlavor', $daoFlavor)
+             ->setService('domainFlavorDetail', $domainFlavorDetail)
+             ->setService('domainFlavorType', $domainFlavorType)
+             ->setService('entityFlavor', $entityFlavor);
+
+        /** @var $result Entity\Flavor */
+        $result = $domainFlavor->updateFromArray($dataset);
+
+        $this->assertEquals(
+            $dataset['name'],
+            $result->getName(),
+            'Entity getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $dataset['type'],
+            $result->getType()->getId(),
+            'Type id does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['detail-id'],
+            $result->getDetails()['detailName1']->getId(),
+            'Detail id 1 does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[1]['detail-name'],
+            $result->getDetails()['detailName2']->getName(),
+            'Detail name 2 does not match expected'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::updateFromArray
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
+     */
+    public function updateFromArrayReturnsEntityOnSuccessAndDeletesExistingImages()
+    {
+        $domainFlavor = $this->getMockBuilder('\Yumilicious\Domain\Flavor')
+            ->setConstructorArgs(array($this->app))
+            ->setMethods(array('deleteImage'))
+            ->getMock();
+
+        $domainFlavorDetail = $this->getDomainFlavorDetail();
+        $domainFlavorType   = $this->getDomainFlavorType();
+        $daoFlavor          = $this->getDaoFlavor();
+        $entityFlavor       = $this->getEntityFlavor();
+        $entityFlavorType   = new Entity\FlavorType();
+
+        $dataset = array(
             'id'   => 123,
             'name' => 'test name',
             'type' => 321,
@@ -912,6 +1043,9 @@ class FlavorTest extends Base
         $daoFlavor->expects($this->once())
             ->method('update')
             ->will($this->returnValue($updateReturn));
+
+        $domainFlavor->expects($this->exactly(2))
+            ->method('deleteImage');
 
         $this->setService('daoFlavor', $daoFlavor)
              ->setService('domainFlavorDetail', $domainFlavorDetail)
@@ -1053,6 +1187,99 @@ class FlavorTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Flavor::getOneByIdNoType
+     */
+    public function getOneByIdNoTypeReturnsFalseOnNotRecordFound()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getOneByIdReturn = array();
+        $daoFlavor->expects($this->once())
+            ->method('getOneByIdNoType')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $id = 123;
+        $this->assertFalse(
+            $domainFlavor->getOneByIdNoType($id),
+            'Expected ::getOneByIdNoType() to return false'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getOneByIdNoType
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
+     * @covers \Yumilicious\Domain::matchArrayKeys
+     * @covers \Yumilicious\Domain::cropArrayKeys
+     * @covers \Yumilicious\Domain::removeMatchingArrayKeys
+     * @covers \Yumilicious\Domain::matchArrayKeyToArrayOfStrings
+     */
+    public function getOneByIdNoTypeEntityOnSuccess()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getOneByIdReturn = array(
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'detail-id' => 213,
+                'detail-name' => 'rbstFree'
+            ),
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'detail-id' => 546,
+                'detail-name' => 'vegetarian'
+            ),
+            array(
+                'id' => 123,
+                'name' => 'Test Name',
+                'detail-id' => 879,
+                'detail-name' => 'calories'
+            ),
+        );
+
+        $daoFlavor->expects($this->once())
+            ->method('getOneByIdNoType')
+            ->will($this->returnValue($getOneByIdReturn));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $id = 123;
+        /** @var $result Entity\Flavor */
+        $result = $domainFlavor->getOneByIdNoType($id);
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['name'],
+            $result->getName(),
+            '::getName() does not match expected'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[0]['detail-name'],
+            $result->getDetails()['rbstFree']->getName(),
+            'Result did not contain expected rbstFree detail'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[1]['detail-name'],
+            $result->getDetails()['vegetarian']->getName(),
+            'Result did not contain expected vegetarian detail'
+        );
+
+        $this->assertEquals(
+            $getOneByIdReturn[2]['detail-name'],
+            $result->getDetails()['calories']->getName(),
+            'Result did not contain expected calories detail'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\Flavor::getall
      */
     public function getAllReturnsFalseOnNoActiveResults()
@@ -1167,6 +1394,128 @@ class FlavorTest extends Base
             $getAllActiveReturn[2]['name'],
             $result[1]->getName(),
             'Expected second entity to match name'
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerGetAllNamesReturnsFalseOnNoResults
+     * @covers \Yumilicious\Domain\Flavor::getAllNames
+     */
+    public function getAllNamesReturnsFalseOnNoResults($status, $activeStatus)
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getAllActiveReturn = array();
+        $daoFlavor->expects($this->once())
+            ->method('getAllNamesByActive')
+            ->with($activeStatus)
+            ->will($this->returnValue($getAllActiveReturn));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $this->assertFalse(
+            $domainFlavor->getAllNames($status),
+            'Expected ::getAll() to return false'
+        );
+    }
+
+    /**
+     * Provider for getAllNamesReturnsFalseOnNoResults
+     *
+     * @return array
+     */
+    public function providerGetAllNamesReturnsFalseOnNoResults()
+    {
+        return array(
+            array('active', 1),
+            array('inactive', 0),
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getAllNames
+     * @covers \Yumilicious\Domain\Flavor::createNestedFlavorDetailTypeArray
+     * @covers \Yumilicious\Domain::nestMultipleResultsByKey
+     */
+    public function getAllNamesReturnsEntityOnSuccess()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getAllActiveReturn = array(
+            array(
+                'id'              => 123,
+                'name'            => 'test name 1',
+                'type-name'       => 'test type name 1',
+                'typeParent-name' => 'test typeParent name 1',
+            ),
+            array(
+                'id'              => 321,
+                'name'            => 'test name 2',
+                'type-name'       => 'test type name 2',
+                'typeParent-name' => 'test typeParent name 1',
+            ),
+            array(
+                'id'              => 456,
+                'name'            => 'test name 3',
+                'type-name'       => 'test type name 3',
+                'typeParent-name' => 'test typeParent name 2',
+            ),
+            array(
+                'id'              => 789,
+                'name'            => 'test name 4',
+                'type-name'       => 'test type name 4',
+                'typeParent-name' => 'test typeParent name 3',
+            ),
+            array(
+                'id'              => 854,
+                'name'            => 'test name 5',
+                'type-name'       => 'test type name 5',
+                'typeParent-name' => null,
+            ),
+            array(
+                'id'              => 5153,
+                'name'            => 'test name 6',
+                'type-name'       => null,
+                'typeParent-name' => null,
+            ),
+        );
+        $statusParameter = 1;
+        $daoFlavor->expects($this->once())
+            ->method('getAllNamesByActive')
+            ->with($statusParameter)
+            ->will($this->returnValue($getAllActiveReturn));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $status = 'active';
+        $result = $domainFlavor->getAllNames($status);
+
+        $this->assertEquals(
+            $getAllActiveReturn[0]['name'],
+            $result['test typeParent name 1']['test type name 1'][0]->getName(),
+            'Expected first entity to match name'
+        );
+
+        $this->assertEquals(
+            $getAllActiveReturn[1]['name'],
+            $result['test typeParent name 1']['test type name 2'][0]->getName(),
+            'Expected first entity to match name'
+        );
+
+        $this->assertEquals(
+            $getAllActiveReturn[2]['name'],
+            $result['test typeParent name 2']['test type name 3'][0]->getName(),
+            'Expected first entity to match name'
+        );
+
+        $this->assertEquals(
+            $getAllActiveReturn[3]['name'],
+            $result['test typeParent name 3']['test type name 4'][0]->getName(),
+            'Expected first entity to match name'
         );
     }
 
