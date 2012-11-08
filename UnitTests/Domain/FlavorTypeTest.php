@@ -582,6 +582,7 @@ class FlavorTypeTest extends Base
      * @test
      * @covers \Yumilicious\Domain\FlavorType::getAllFlat
      * @covers \Yumilicious\Domain\FlavorType::flatten
+     * @group me
      *
      * Expected result should look similar to
             $elements = array(
@@ -662,13 +663,13 @@ class FlavorTypeTest extends Base
         $result = $domainFlavorType->getAllFlat($status);
 
         $this->assertEquals(
-            $elements[0]['name'],
+            '- ' . $elements[0]['name'],
             $result[0]->getName(),
             'First element did not match expected'
         );
 
         $this->assertContains(
-            $elements[2]['name'],
+            '- ' . $elements[2]['name'],
             $result[0]->getChildren()[3]->getName(),
             'First element did not contain expected child'
         );
@@ -680,7 +681,7 @@ class FlavorTypeTest extends Base
         );
 
         $this->assertEquals(
-            $elements[1]['name'],
+            '- ' . $elements[1]['name'],
             $result[3]->getName(),
             'Second element did not match expected'
         );
