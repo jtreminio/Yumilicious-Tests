@@ -10,7 +10,7 @@ use Yumilicious\Validator;
 class DomainTest extends Base
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return Domain|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getDomain()
     {
@@ -293,6 +293,54 @@ class DomainTest extends Base
         $this->assertEquals(
             $entity5->getId(),
             $children3['5']->getId()
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain::reduceToIds
+     */
+    public function reduceToIdsReturnsOnlyIds()
+    {
+        $domain = $this->getDomain();
+
+        $entity1 = new Entity\FlavorType();
+        $entity2 = new Entity\FlavorType();
+        $entity3 = new Entity\FlavorType();
+        $entity4 = new Entity\FlavorType();
+        $entity5 = new Entity\FlavorType();
+        $entity6 = new Entity\FlavorType();
+
+        $entity1->setId(1)
+            ->setIsActive(1);
+        $entity2->setId(2)
+            ->setIsActive(0);
+        $entity3->setId(3)
+            ->setIsActive(1);
+        $entity4->setId(4)
+            ->setIsActive(0);
+        $entity5->setId(5)
+            ->setIsActive(1);
+        $entity6->setId(6)
+            ->setIsActive(0);
+
+        $arrayOfEntities = array(
+            $entity1,
+            $entity2,
+            $entity3,
+            $entity4,
+            $entity5,
+            $entity6
+        );
+
+        $expectedResponse = array(1, 2, 3, 4, 5, 6);
+
+        $response = $domain->reduceToIds($arrayOfEntities);
+
+        $this->assertEquals(
+            $expectedResponse,
+            $response,
+            'Expected ::reduceToIds() to return an array of entity ids'
         );
     }
 }
