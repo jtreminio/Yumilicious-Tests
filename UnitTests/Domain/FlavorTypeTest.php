@@ -582,7 +582,6 @@ class FlavorTypeTest extends Base
      * @test
      * @covers \Yumilicious\Domain\FlavorType::getAllFlat
      * @covers \Yumilicious\Domain\FlavorType::flatten
-     * @group me
      *
      * Expected result should look similar to
             $elements = array(
