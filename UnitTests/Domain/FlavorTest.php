@@ -1308,4 +1308,121 @@ class FlavorTest extends Base
             'Expected ::delete() to return true'
         );
     }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getForLocations
+     */
+    public function getForLocationsReturnsArrayOfEntities()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getByLocations = array(
+            array(
+                'id'         => 123,
+                'locationId' => 1234,
+                'name'       => 'Flavor 1',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 2,
+                'type-name'  => 'Type 1',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+            array(
+                'id'         => 456,
+                'locationId' => 4567,
+                'name'       => 'Flavor 2',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 3,
+                'type-name'  => 'Type 2',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+            array(
+                'id'         => 789,
+                'locationId' => 7890,
+                'name'       => 'Flavor 3',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 4,
+                'type-name'  => 'Type 3',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+        );
+
+        $daoFlavor->expects($this->once())
+            ->method('getByLocations')
+            ->will($this->returnValue($getByLocations));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $result = $domainFlavor->getForLocations();
+
+        $this->assertEquals(
+            $getByLocations[0]['id'],
+            $result[0]->getId()
+        );
+
+        $this->assertEquals(
+            $getByLocations[1]['id'],
+            $result[1]->getId()
+        );
+
+        $this->assertEquals(
+            $getByLocations[2]['id'],
+            $result[2]->getId()
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::keepFlavorIdParent
+     */
+    public function keepFlavorIdParentReturnsCorrectEntities()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+
+        $entity1 = new Entity\Flavor();
+        $entity2 = new Entity\Flavor();
+        $entity3 = new Entity\Flavor();
+
+        $parentType1 = new Entity\FlavorType();
+        $parentType2 = new Entity\FlavorType();
+        $parentType3 = new Entity\FlavorType();
+
+        $parentType3->setParentId(1);
+
+        $entity1->setTypeId(1)
+            ->setType($parentType1);
+
+        $entity2->setTypeId(2)
+            ->setType($parentType2);
+
+        $entity3->setTypeId(3)
+            ->setType($parentType3);
+
+        $entityArray = array(
+            $entity1,
+            $entity2,
+            $entity3,
+        );
+
+        $typeId = 1;
+
+        $result = $domainFlavor->keepFlavorIdParent($typeId, $entityArray);
+
+        $this->assertEquals(
+            $entity1->getTypeId(),
+            $result[0]->getTypeId()
+        );
+
+        $this->assertEquals(
+            $entity3->getTypeId(),
+            $result[1]->getTypeId()
+        );
+    }
 }
