@@ -1380,6 +1380,28 @@ class FlavorTest extends Base
 
     /**
      * @test
+     * @covers \Yumilicious\Domain\Flavor::getForLocations
+     */
+    public function getForLocationsReturnsFalseOnNoResults()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getByLocationsValue = false;
+        $daoFlavor->expects($this->once())
+            ->method('getByLocations')
+            ->will($this->returnValue($getByLocationsValue));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $this->assertFalse(
+            $domainFlavor->getForLocations(),
+            'Expected ::getForLocations() to return false on no results found'
+        );
+    }
+
+    /**
+     * @test
      * @covers \Yumilicious\Domain\Flavor::keepFlavorIdParent
      */
     public function keepFlavorIdParentReturnsCorrectEntities()
@@ -1423,6 +1445,162 @@ class FlavorTest extends Base
         $this->assertEquals(
             $entity3->getTypeId(),
             $result[1]->getTypeId()
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::separateIntoLocations
+     */
+    public function separateIntoLocationsReturnsSortedArray()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+
+        $entity1 = new Entity\Flavor();
+        $entity2 = new Entity\Flavor();
+        $entity3 = new Entity\Flavor();
+        $entity4 = new Entity\Flavor();
+        $entity5 = new Entity\Flavor();
+
+        $entity1->setName('Location 987')
+            ->setLocationId('123');
+
+        $entity2->setName('Location 2')
+            ->setLocationId('456');
+
+        $entity3->setName('Location 3')
+            ->setLocationId('789');
+
+        $entity4->setName('Location 4')
+            ->setLocationId('123');
+
+        $entity5->setName('Location 5')
+            ->setLocationId('456');
+
+        $entities = array(
+            $entity1,
+            $entity2,
+            $entity3,
+            $entity4,
+            $entity5,
+        );
+
+        $result = $domainFlavor->separateIntoLocations($entities);
+
+        $expected = array(
+            123 => array(
+                'Location 4'   => $entity4,
+                'Location 987' => $entity1,
+            ),
+            456 => array(
+                'Location 2' => $entity2,
+                'Location 5' => $entity5,
+            ),
+            789 => array(
+                'Location 3' => $entity3,
+            ),
+        );
+
+        $this->assertEquals(
+            $expected,
+            $result,
+            'Result did not match expected in ::separateIntoLocations()'
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getByLocation
+     */
+    public function getByLocationReturnsArrayOfEntities()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getByLocations = array(
+            array(
+                'id'         => 123,
+                'locationId' => 1234,
+                'name'       => 'Flavor 1',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 2,
+                'type-name'  => 'Type 1',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+            array(
+                'id'         => 456,
+                'locationId' => 4567,
+                'name'       => 'Flavor 2',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 3,
+                'type-name'  => 'Type 2',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+            array(
+                'id'         => 789,
+                'locationId' => 7890,
+                'name'       => 'Flavor 3',
+                'isActive'   => 1,
+                'createdBy'  => 1,
+                'type-id'    => 4,
+                'type-name'  => 'Type 3',
+                'type-isActive' => 1,
+                'type-updatedBy' => 2,
+            ),
+        );
+
+        $locationId = 123;
+
+        $daoFlavor->expects($this->once())
+            ->method('getByLocationId')
+            ->with($locationId)
+            ->will($this->returnValue($getByLocations));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $result = $domainFlavor->getByLocation($locationId);
+
+        $this->assertEquals(
+            $getByLocations[0]['id'],
+            $result[0]->getId()
+        );
+
+        $this->assertEquals(
+            $getByLocations[1]['id'],
+            $result[1]->getId()
+        );
+
+        $this->assertEquals(
+            $getByLocations[2]['id'],
+            $result[2]->getId()
+        );
+    }
+
+    /**
+     * @test
+     * @covers \Yumilicious\Domain\Flavor::getByLocation
+     */
+    public function getByLocationReturnsFalseOnNoResults()
+    {
+        $domainFlavor = $this->getDomainFlavor();
+        $daoFlavor    = $this->getDaoFlavor();
+
+        $getByLocationsValue = false;
+        $locationId = 123;
+        $daoFlavor->expects($this->once())
+            ->method('getByLocationId')
+            ->with($locationId)
+            ->will($this->returnValue($getByLocationsValue));
+
+        $this->setService('daoFlavor', $daoFlavor);
+
+        $this->assertFalse(
+            $domainFlavor->getByLocation($locationId),
+            'Expected ::getByLocation() to return false on no results found'
         );
     }
 }
